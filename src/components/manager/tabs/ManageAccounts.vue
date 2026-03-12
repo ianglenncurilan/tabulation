@@ -481,6 +481,7 @@ const fetchProfiles = async () => {
     profiles.value = data;
   } catch (error) {
     console.error("Error fetching profiles:", error);
+    console.error("Error details:", error.message, error.code, error.hint); // More detailed error logging
   } finally {
     loading.value = false;
   }
@@ -498,18 +499,35 @@ const handleSubmit = async () => {
       });
     } else {
       // Create new staff account
-      await signUp(
+      const { user } = await signUp(
         form.value.email,
         form.value.password,
         form.value.fullName,
         form.value.role,
       );
+
+      // Create corresponding profile in the profiles table
+      await createProfile({
+        id: user.id,
+        email: user.email,
+        full_name: form.value.fullName,
+        role: form.value.role,
+      });
     }
 
     closeModal();
     await fetchProfiles();
   } catch (error) {
     console.error("Error saving profile:", error);
+
+    // Handle rate limiting specifically
+    if (error.message?.includes("rate limit") || error.status === 429) {
+      alert(
+        "Too many signup attempts. Please wait a few minutes before trying again.",
+      );
+    } else {
+      alert("Error creating account: " + error.message);
+    }
   } finally {
     submitting.value = false;
   }

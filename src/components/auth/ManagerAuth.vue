@@ -17,7 +17,11 @@
             border-color: var(--color-primary-dark);
           "
         >
-          <span class="text-3xl text-white">🏆</span>
+          <img
+            src="/LOGO wreck.png"
+            alt="Wreck-It Ralph Logo"
+            class="w-16 h-16 object-contain"
+          />
         </div>
         <h2 class="mt-6 text-3xl font-bold" style="color: var(--color-light)">
           Manager Portal

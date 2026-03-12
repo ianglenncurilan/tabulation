@@ -11,12 +11,12 @@
       <div class="px-6 py-4">
         <div class="flex items-center justify-between">
           <!-- Logo and Title -->
-          <div class="flex items-center space-x-4 ml-12">
-            <div class="w-12 h-12 flex items-center justify-center">
+          <div class="flex items-center space-x-2 ml-12">
+            <div class="w-32 h-20 flex items-center justify-center">
               <img
                 src="/LOGO wreck.png"
                 alt="Wreck-It Ralph Logo"
-                class="w-16 h-16 object-contain"
+                class="w-36 h-24 object-contain"
               />
             </div>
             <div>
@@ -26,51 +26,8 @@
             </div>
           </div>
 
-          <!-- Search and Actions -->
-          <div class="flex items-center space-x-4">
-            <div class="relative">
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Search players..."
-                class="input-modern w-64 pl-10"
-              />
-              <div
-                class="absolute left-3 top-3.5"
-                style="color: var(--color-secondary)"
-              >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  ></path>
-                </svg>
-              </div>
-            </div>
-            <button class="btn-secondary">
-              <svg
-                class="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z"
-                ></path>
-              </svg>
-              Filter
-            </button>
-          </div>
+
+          
         </div>
       </div>
     </header>
@@ -86,13 +43,7 @@
         );
         border-color: var(--color-primary-dark);
       "
-    >
-      <div class="px-8 py-12">
-        <h2 class="text-3xl font-bold text-white mb-4">
-          Real-time leaderboard for DAUG 2026 sports events
-        </h2>
-      </div>
-    </div>
+    ></div>
 
     <!-- Main Content -->
     <div class="px-8 py-12">

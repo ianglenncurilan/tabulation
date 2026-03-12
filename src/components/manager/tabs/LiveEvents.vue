@@ -391,7 +391,7 @@ import {
   getEvents,
   createEvent,
   updateEvent,
-  deleteEvent,
+  deleteEvent as deleteEventFromDb,
   subscribeToEvents,
 } from "@/utils/supabase.js";
 
@@ -472,7 +472,7 @@ const deleteEvent = (event) => {
 const confirmDelete = async () => {
   try {
     deleting.value = true;
-    await deleteEvent(deletingEvent.value.id);
+    await deleteEventFromDb(deletingEvent.value.id);
     showDeleteModal.value = false;
     await fetchEvents();
   } catch (error) {

@@ -70,6 +70,148 @@
       </div>
     </header>
 
+    <!-- Tournament Overview -->
+    <div class="px-6 py-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Total Points -->
+        <div class="card p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p
+                class="text-sm font-medium"
+                style="color: var(--color-secondary)"
+              >
+                Total Points Awarded
+              </p>
+              <p class="text-2xl font-bold" style="color: var(--color-light)">
+                {{ totalPointsAwarded.toLocaleString() }}
+              </p>
+            </div>
+            <div
+              class="w-12 h-12 rounded-full flex items-center justify-center"
+              style="background: var(--color-primary)"
+            >
+              <svg
+                class="w-6 h-6 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 3-1.657 0-3-.895-3-3z"
+                ></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Medals -->
+        <div class="card p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p
+                class="text-sm font-medium"
+                style="color: var(--color-secondary)"
+              >
+                Total Medals Awarded
+              </p>
+              <div class="flex items-center space-x-2 mt-2">
+                <div class="text-center">
+                  <div
+                    class="text-2xl font-bold"
+                    style="color: var(--color-light)"
+                  >
+                    {{ totalMedals.gold }}
+                  </div>
+                  <div class="text-xs" style="color: var(--color-secondary)">
+                    Gold
+                  </div>
+                </div>
+                <div class="text-center">
+                  <div
+                    class="text-2xl font-bold"
+                    style="color: var(--color-light)"
+                  >
+                    {{ totalMedals.silver }}
+                  </div>
+                  <div class="text-xs" style="color: var(--color-secondary)">
+                    Silver
+                  </div>
+                </div>
+                <div class="text-center">
+                  <div
+                    class="text-2xl font-bold"
+                    style="color: var(--color-light)"
+                  >
+                    {{ totalMedals.bronze }}
+                  </div>
+                  <div class="text-xs" style="color: var(--color-secondary)">
+                    Bronze
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="w-12 h-12 rounded-full flex items-center justify-center"
+              style="background: var(--color-accent)"
+            >
+              <svg
+                class="w-6 h-6 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v5a2 2 0 002 2h2a2 2 0 002-2M9 19a3 3 0 100-6 3 3 0 000 6z"
+                ></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Events -->
+        <div class="card p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p
+                class="text-sm font-medium"
+                style="color: var(--color-secondary)"
+              >
+                Active Events
+              </p>
+              <p class="text-2xl font-bold" style="color: var(--color-light)">
+                {{ activeEventsCount }}
+              </p>
+            </div>
+            <div
+              class="w-12 h-12 rounded-full flex items-center justify-center"
+              style="background: var(--color-primary-dark)"
+            >
+              <svg
+                class="w-6 h-6 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                ></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Main Content -->
     <div class="px-6 py-8">
       <!-- Tab Navigation -->
@@ -137,18 +279,44 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/useAuthStore.js";
+import { useTournamentStore } from "@/stores/useTournamentStore.js";
 import ManageAccounts from "./tabs/ManageAccounts.vue";
 import LiveEvents from "./tabs/LiveEvents.vue";
 import TabulationControl from "./tabs/TabulationControl.vue";
 
 const router = useRouter();
 const authStore = useAuthStore();
+const tournamentStore = useTournamentStore();
 
 // State
 const activeTab = ref("accounts");
+
+// Computed Properties
+const totalPointsAwarded = computed(() => {
+  return tournamentStore.participants.reduce(
+    (total, participant) => total + participant.points,
+    0,
+  );
+});
+
+const totalMedals = computed(() => {
+  return tournamentStore.participants.reduce(
+    (total, participant) => {
+      total.gold += participant.medals.gold;
+      total.silver += participant.medals.silver;
+      total.bronze += participant.medals.bronze;
+      return total;
+    },
+    { gold: 0, silver: 0, bronze: 0 },
+  );
+});
+
+const activeEventsCount = computed(() => {
+  return tournamentStore.events.filter((event) => event.is_live).length;
+});
 
 const tabs = [
   {

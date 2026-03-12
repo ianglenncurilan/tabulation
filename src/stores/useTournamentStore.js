@@ -1,39 +1,15 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
-import { getEvents, getScores, subscribeToEvents } from "@/utils/supabase.js";
+import {
+  getEvents,
+  getScores,
+  getParticipants,
+  subscribeToEvents,
+} from "@/utils/supabase.js";
 
 export const useTournamentStore = defineStore("tournament", () => {
-  // Sample data - in real app this would come from Supabase
-  const participants = ref([
-    {
-      id: 1,
-      name: "Information Technology",
-      points: 18240,
-      rank: 1,
-      record: { wins: 15, losses: 2 },
-      recentForm: ["W", "W", "L", "W", "W"],
-      avatar: "💻",
-    },
-    {
-      id: 2,
-      name: "Information System",
-      points: 16110,
-      rank: 2,
-      record: { wins: 13, losses: 4 },
-      recentForm: ["W", "L", "W", "W", "L"],
-      avatar: "📊",
-    },
-    {
-      id: 3,
-      name: "Computer Science",
-      points: 14350,
-      rank: 3,
-      record: { wins: 12, losses: 5 },
-      recentForm: ["L", "W", "W", "L", "W"],
-      avatar: "🖥️",
-    },
-  ]);
-
+  // Dynamic data from Supabase
+  const participants = ref([]);
   const sports = ref([
     { id: 1, name: "Flag Football", icon: "🏈", active: true },
     { id: 2, name: "Basketball", icon: "🏀", active: true },
@@ -107,6 +83,33 @@ export const useTournamentStore = defineStore("tournament", () => {
     }
   };
 
+  const addMedal = (participantId, medalType) => {
+    const participant = participants.value.find((p) => p.id === participantId);
+    if (participant) {
+      // Add medal
+      participant.medals[medalType]++;
+
+      // Add points based on medal type
+      const medalPoints = {
+        gold: 30,
+        silver: 20,
+        bronze: 10,
+      };
+      participant.points += medalPoints[medalType];
+
+      // Update recent form
+      participant.recentForm.pop(); // Remove oldest
+      participant.recentForm.unshift("W"); // Add win
+
+      // Re-sort participants by points
+      participants.value.sort((a, b) => b.points - a.points);
+      // Update ranks
+      participants.value.forEach((p, index) => {
+        p.rank = index + 1;
+      });
+    }
+  };
+
   // Fetch real data
   const fetchEvents = async () => {
     try {
@@ -132,8 +135,71 @@ export const useTournamentStore = defineStore("tournament", () => {
     }
   };
 
+  const fetchParticipants = async () => {
+    try {
+      loading.value = true;
+      const data = await getParticipants();
+      participants.value = data;
+      // Calculate points from scores and medals
+      updateParticipantPoints();
+    } catch (error) {
+      console.error("Error fetching participants:", error);
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const updateParticipantPoints = () => {
+    participants.value.forEach((participant) => {
+      // Initialize medals and points if not exists
+      if (!participant.medals) {
+        participant.medals = { gold: 0, silver: 0, bronze: 0 };
+      }
+      if (!participant.points) {
+        participant.points = 0;
+      }
+
+      // Set default values for avatar and color if not exists
+      if (!participant.avatar) {
+        const avatarMap = {
+          "Information Technology": "/felix.jpg",
+          "Information System": "/vanellope.jpg",
+          "Computer Science": "/sgt.calhoun.jpg",
+        };
+        participant.avatar = avatarMap[participant.name] || "";
+      }
+
+      if (!participant.color) {
+        const colorMap = {
+          "Information Technology": "blue",
+          "Information System": "peach",
+          "Computer Science": "red",
+        };
+        participant.color = colorMap[participant.name] || "gray";
+      }
+
+      // Calculate medals and points from scores
+      const participantScores = scores.value.filter(
+        (score) => score.team_name === participant.name,
+      );
+      participantScores.forEach((score) => {
+        if (score.medal_type) {
+          participant.medals[score.medal_type]++;
+          const medalPoints = { gold: 30, silver: 20, bronze: 10 };
+          participant.points += medalPoints[score.medal_type];
+        }
+      });
+    });
+
+    // Sort by points and update ranks
+    participants.value.sort((a, b) => b.points - a.points);
+    participants.value.forEach((p, index) => {
+      p.rank = index + 1;
+    });
+  };
+
   const initializeData = async () => {
-    await Promise.all([fetchEvents(), fetchScores()]);
+    await Promise.all([fetchEvents(), fetchScores(), fetchParticipants()]);
   };
 
   // Setup realtime updates
@@ -141,6 +207,8 @@ export const useTournamentStore = defineStore("tournament", () => {
     subscribeToEvents((payload) => {
       console.log("Realtime event update:", payload);
       fetchEvents();
+      fetchScores();
+      fetchParticipants();
     });
   };
 
@@ -161,7 +229,7 @@ export const useTournamentStore = defineStore("tournament", () => {
     fullLeaderboard,
     totalParticipants,
     updateScore,
-    addRecentForm,
+    addMedal,
     fetchEvents,
     fetchScores,
     initializeData,

@@ -80,8 +80,12 @@
                   :key="event.id"
                   class="flex items-center justify-between p-2 border rounded transition-all duration-200 cursor-pointer"
                   style="border-color: var(--color-border)"
-                  onmouseover="this.style.borderColor = 'var(--color-primary)'"
-                  onmouseout="this.style.borderColor = 'var(--color-border)'"
+                  @mouseover="
+                    $event.target.style.borderColor = 'var(--color-primary)'
+                  "
+                  @mouseout="
+                    $event.target.style.borderColor = 'var(--color-border)'
+                  "
                 >
                   <div class="flex items-center space-x-2">
                     <span class="text-lg">
@@ -288,15 +292,17 @@
               <!-- #1 Position (Bigger and Centered) -->
               <div
                 class="card card-hover p-4 relative overflow-hidden pixel-glow transform scale-105"
-                style="
-                  background: linear-gradient(
-                    135deg,
-                    var(--color-primary) 0%,
-                    var(--color-primary-dark) 100%
-                  );
-                  grid-row: 1;
-                  grid-column: 2;
-                "
+                :style="{
+                  background: topThree[0]?.color
+                    ? 'linear-gradient(135deg, ' +
+                      getTeamColor(topThree[0].color) +
+                      ' 0%, ' +
+                      getTeamColor(topThree[0].color) +
+                      'dd 100%)'
+                    : 'var(--color-primary)',
+                  gridRow: '1',
+                  gridColumn: '2',
+                }"
               >
                 <!-- Winner Crown -->
                 <div
@@ -312,14 +318,20 @@
                 <div class="text-center">
                   <div class="flex justify-center mb-3">
                     <div
-                      class="w-16 h-16 rounded-full flex items-center justify-center text-2xl border-3 shadow-lg"
-                      style="
-                        background: rgba(255, 255, 255, 0.2);
-                        backdrop-filter: blur(4px);
-                        border-color: var(--color-light);
-                      "
+                      class="w-20 h-20 rounded-full flex items-center justify-center text-2xl border-4 shadow-xl overflow-hidden"
+                      :style="{
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        backdropFilter: 'blur(4px)',
+                        borderColor: getTeamColor(
+                          topThree[0]?.color || '#6B7280',
+                        ),
+                      }"
                     >
-                      {{ topThree[0].avatar }}
+                      <img
+                        :src="topThree[0]?.avatar || '/default-avatar.png'"
+                        :alt="topThree[0]?.name || 'Team'"
+                        class="w-full h-full object-cover rounded-full"
+                      />
                     </div>
                   </div>
                   <div class="mb-2">
@@ -328,17 +340,17 @@
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);
-                        border-color: var(--color-light);
+                        border-color: white;
                         color: white;
                       "
                       >1ST PLACE</span
                     >
                   </div>
                   <div class="font-bold text-lg mb-2" style="color: white">
-                    {{ topThree[0].name }}
+                    {{ topThree[0]?.name || "Team" }}
                   </div>
                   <div class="text-xl font-bold mb-3" style="color: white">
-                    {{ formatPoints(topThree[0].points) }}
+                    {{ formatPoints(topThree[0]?.points || 0) }}
                   </div>
                   <div class="flex items-center justify-center space-x-2">
                     <span
@@ -346,20 +358,30 @@
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);
-                        border-color: var(--color-light);
+                        border-color: white;
                         color: white;
                       "
-                      >{{ topThree[0].record.wins }}W</span
+                      >🥇 {{ topThree[0]?.medals?.gold || 0 }}</span
                     >
                     <span
                       class="inline-flex items-center px-2 py-1 rounded text-xs font-bold border"
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);
-                        border-color: var(--color-light);
+                        border-color: white;
                         color: white;
                       "
-                      >{{ topThree[0].record.losses }}L</span
+                      >🥈 {{ topThree[0]?.medals?.silver || 0 }}</span
+                    >
+                    <span
+                      class="inline-flex items-center px-2 py-1 rounded text-xs font-bold border"
+                      style="
+                        background: rgba(255, 255, 255, 0.2);
+                        backdrop-filter: blur(4px);
+                        border-color: white;
+                        color: white;
+                      "
+                      >🥉 {{ topThree[0]?.medals?.bronze || 0 }}</span
                     >
                   </div>
                 </div>
@@ -368,13 +390,15 @@
               <!-- #2 Position -->
               <div
                 class="card card-hover p-3 relative overflow-hidden"
-                style="
-                  background: linear-gradient(
-                    135deg,
-                    var(--color-secondary) 0%,
-                    var(--color-accent) 100%
-                  );
-                "
+                :style="{
+                  background: topThree[1]?.color
+                    ? 'linear-gradient(135deg, ' +
+                      getTeamColor(topThree[1].color) +
+                      ' 0%, ' +
+                      getTeamColor(topThree[1].color) +
+                      'dd 100%)'
+                    : 'var(--color-secondary)',
+                }"
               >
                 <!-- Silver Medal -->
                 <div
@@ -390,14 +414,20 @@
                 <div class="text-center">
                   <div class="flex justify-center mb-2">
                     <div
-                      class="w-12 h-12 rounded-full flex items-center justify-center text-lg border-2 shadow-md"
-                      style="
-                        background: rgba(255, 255, 255, 0.2);
-                        backdrop-filter: blur(4px);
-                        border-color: var(--color-light);
-                      "
+                      class="w-16 h-16 rounded-full flex items-center justify-center text-lg border-3 shadow-lg overflow-hidden"
+                      :style="{
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        backdropFilter: 'blur(4px)',
+                        borderColor: getTeamColor(
+                          topThree[1]?.color || '#6B7280',
+                        ),
+                      }"
                     >
-                      {{ topThree[1].avatar }}
+                      <img
+                        :src="topThree[1]?.avatar || '/default-avatar.png'"
+                        :alt="topThree[1]?.name || 'Team'"
+                        class="w-full h-full object-cover rounded-full"
+                      />
                     </div>
                   </div>
                   <div class="mb-1">
@@ -406,17 +436,17 @@
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);
-                        border-color: var(--color-light);
+                        border-color: white;
                         color: white;
                       "
                       >2ND PLACE</span
                     >
                   </div>
                   <div class="font-bold text-sm mb-1" style="color: white">
-                    {{ topThree[1].name }}
+                    {{ topThree[1]?.name || "Team" }}
                   </div>
                   <div class="text-lg font-bold mb-2" style="color: white">
-                    {{ formatPoints(topThree[1].points) }}
+                    {{ formatPoints(topThree[1]?.points || 0) }}
                   </div>
                   <div class="flex items-center justify-center space-x-1">
                     <span
@@ -424,20 +454,30 @@
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);
-                        border-color: var(--color-light);
+                        border-color: white;
                         color: white;
                       "
-                      >{{ topThree[1].record.wins }}W</span
+                      >🥇 {{ topThree[1]?.medals?.gold || 0 }}</span
                     >
                     <span
                       class="inline-flex items-center px-1 py-0.5 rounded text-xs font-bold border"
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);
-                        border-color: var(--color-light);
+                        border-color: white;
                         color: white;
                       "
-                      >{{ topThree[1].record.losses }}L</span
+                      >🥈 {{ topThree[1]?.medals?.silver || 0 }}</span
+                    >
+                    <span
+                      class="inline-flex items-center px-1 py-0.5 rounded text-xs font-bold border"
+                      style="
+                        background: rgba(255, 255, 255, 0.2);
+                        backdrop-filter: blur(4px);
+                        border-color: white;
+                        color: white;
+                      "
+                      >🥉 {{ topThree[1]?.medals?.bronze || 0 }}</span
                     >
                   </div>
                 </div>
@@ -446,13 +486,15 @@
               <!-- #3 Position -->
               <div
                 class="card card-hover p-3 relative overflow-hidden"
-                style="
-                  background: linear-gradient(
-                    135deg,
-                    var(--color-light) 0%,
-                    var(--color-primary) 100%
-                  );
-                "
+                :style="{
+                  background: topThree[2]?.color
+                    ? 'linear-gradient(135deg, ' +
+                      getTeamColor(topThree[2].color) +
+                      ' 0%, ' +
+                      getTeamColor(topThree[2].color) +
+                      'dd 100%)'
+                    : 'var(--color-primary)',
+                }"
               >
                 <!-- Bronze Medal -->
                 <div
@@ -468,14 +510,20 @@
                 <div class="text-center">
                   <div class="flex justify-center mb-2">
                     <div
-                      class="w-12 h-12 rounded-full flex items-center justify-center text-lg border-2 shadow-md"
-                      style="
-                        background: rgba(255, 255, 255, 0.2);
-                        backdrop-filter: blur(4px);
-                        border-color: var(--color-primary);
-                      "
+                      class="w-16 h-16 rounded-full flex items-center justify-center text-lg border-3 shadow-lg overflow-hidden"
+                      :style="{
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        backdropFilter: 'blur(4px)',
+                        borderColor: getTeamColor(
+                          topThree[2]?.color || '#6B7280',
+                        ),
+                      }"
                     >
-                      {{ topThree[2].avatar }}
+                      <img
+                        :src="topThree[2]?.avatar || '/default-avatar.png'"
+                        :alt="topThree[2]?.name || 'Team'"
+                        class="w-full h-full object-cover rounded-full"
+                      />
                     </div>
                   </div>
                   <div class="mb-1">
@@ -484,17 +532,17 @@
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);
-                        border-color: var(--color-primary);
+                        border-color: white;
                         color: white;
                       "
                       >3RD PLACE</span
                     >
                   </div>
                   <div class="font-bold text-sm mb-1" style="color: white">
-                    {{ topThree[2].name }}
+                    {{ topThree[2]?.name || "Team" }}
                   </div>
                   <div class="text-lg font-bold mb-2" style="color: white">
-                    {{ formatPoints(topThree[2].points) }}
+                    {{ formatPoints(topThree[2]?.points || 0) }}
                   </div>
                   <div class="flex items-center justify-center space-x-1">
                     <span
@@ -502,20 +550,30 @@
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);
-                        border-color: var(--color-primary);
+                        border-color: white;
                         color: white;
                       "
-                      >{{ topThree[2].record.wins }}W</span
+                      >🥇 {{ topThree[2]?.medals?.gold || 0 }}</span
                     >
                     <span
                       class="inline-flex items-center px-1 py-0.5 rounded text-xs font-bold border"
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);
-                        border-color: var(--color-primary);
+                        border-color: white;
                         color: white;
                       "
-                      >{{ topThree[2].record.losses }}L</span
+                      >🥈 {{ topThree[2]?.medals?.silver || 0 }}</span
+                    >
+                    <span
+                      class="inline-flex items-center px-1 py-0.5 rounded text-xs font-bold border"
+                      style="
+                        background: rgba(255, 255, 255, 0.2);
+                        backdrop-filter: blur(4px);
+                        border-color: white;
+                        color: white;
+                      "
+                      >🥉 {{ topThree[2]?.medals?.bronze || 0 }}</span
                     >
                   </div>
                 </div>
@@ -534,24 +592,6 @@
                 <p class="text-sm mt-1" style="color: var(--color-secondary)">
                   {{ totalParticipants }} Participants
                 </p>
-              </div>
-              <div class="flex items-center space-x-2">
-                <button class="btn-secondary">
-                  <svg
-                    class="w-4 h-4 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                    ></path>
-                  </svg>
-                  Export
-                </button>
               </div>
             </div>
 
@@ -576,25 +616,13 @@
                       class="px-6 py-4 text-center text-xs font-medium uppercase tracking-wider"
                       style="color: var(--color-secondary)"
                     >
-                      Record (W-L)
+                      Medals (🥇🥈🥉)
                     </th>
                     <th
                       class="px-6 py-4 text-center text-xs font-medium uppercase tracking-wider"
                       style="color: var(--color-secondary)"
                     >
                       Points
-                    </th>
-                    <th
-                      class="px-6 py-4 text-center text-xs font-medium uppercase tracking-wider"
-                      style="color: var(--color-secondary)"
-                    >
-                      Recent Form
-                    </th>
-                    <th
-                      class="px-6 py-4 text-center text-xs font-medium uppercase tracking-wider"
-                      style="color: var(--color-secondary)"
-                    >
-                      Actions
                     </th>
                   </tr>
                 </thead>
@@ -642,17 +670,25 @@
                     <td class="table-cell">
                       <div class="flex items-center">
                         <div
-                          class="w-10 h-10 rounded-full flex items-center justify-center text-lg border-2 shadow-sm"
-                          style="
-                            background: linear-gradient(
-                              135deg,
-                              var(--color-primary) 0%,
-                              var(--color-secondary) 100%
-                            );
-                            border-color: var(--color-primary);
-                          "
+                          class="w-14 h-14 rounded-full overflow-hidden border-3 shadow-lg"
+                          :style="{
+                            background: participant?.color
+                              ? 'linear-gradient(135deg, ' +
+                                getTeamColor(participant.color) +
+                                ' 0%, ' +
+                                getTeamColor(participant.color) +
+                                'dd 100%)'
+                              : 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%)',
+                            borderColor: participant?.color
+                              ? getTeamColor(participant.color)
+                              : 'var(--color-primary)',
+                          }"
                         >
-                          {{ participant.avatar }}
+                          <img
+                            :src="participant?.avatar || '/default-avatar.png'"
+                            :alt="participant?.name || 'Team'"
+                            class="w-full h-full object-cover"
+                          />
                         </div>
                         <div class="ml-4">
                           <div
@@ -671,15 +707,17 @@
                       </div>
                     </td>
 
-                    <!-- Record -->
+                    <!-- Medals -->
                     <td class="table-cell text-center">
-                      <div class="flex items-center justify-center space-x-2">
-                        <span class="badge badge-success"
-                          >{{ participant.record.wins }}W</span
+                      <div class="flex items-center justify-center space-x-1">
+                        <span class="text-yellow-500 font-bold"
+                          >🥇 {{ participant.medals?.gold || 0 }}</span
                         >
-                        <span style="color: var(--color-secondary)">-</span>
-                        <span class="badge badge-danger"
-                          >{{ participant.record.losses }}L</span
+                        <span class="text-gray-400 font-bold"
+                          >🥈 {{ participant.medals?.silver || 0 }}</span
+                        >
+                        <span class="text-orange-600 font-bold"
+                          >🥉 {{ participant.medals?.bronze || 0 }}</span
                         >
                       </div>
                     </td>
@@ -692,116 +730,9 @@
                         >{{ formatPoints(participant.points) }}</span
                       >
                     </td>
-
-                    <!-- Recent Form -->
-                    <td class="table-cell">
-                      <div class="flex justify-center space-x-1">
-                        <div
-                          v-for="(result, i) in participant.recentForm"
-                          :key="i"
-                          :class="[
-                            'w-8 h-8 flex items-center justify-center border text-xs font-bold',
-                            result === 'W' ? 'badge-success' : 'badge-danger',
-                          ]"
-                        >
-                          {{ result }}
-                        </div>
-                      </div>
-                    </td>
-
-                    <!-- Actions -->
-                    <td class="table-cell text-center">
-                      <div class="flex justify-center space-x-2">
-                        <button class="btn-primary text-sm">Follow</button>
-                        <button
-                          class="p-2 transition-colors"
-                          style="color: var(--color-secondary)"
-                          onmouseover="this.style.color = 'var(--color-light)'"
-                          onmouseout="
-                            this.style.color = 'var(--color-secondary)'
-                          "
-                        >
-                          <svg
-                            class="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                            ></path>
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
                   </tr>
                 </tbody>
               </table>
-            </div>
-
-            <!-- User's Rank -->
-            <div
-              class="mt-6 p-6 border-2 pixel-glow"
-              style="
-                background: linear-gradient(
-                  135deg,
-                  var(--color-dark) 0%,
-                  var(--color-surface) 100%
-                );
-                border-color: var(--color-primary);
-              "
-            >
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                  <div
-                    class="w-12 h-12 rounded-full flex items-center justify-center font-bold border-2 shadow-lg"
-                    style="
-                      background: linear-gradient(
-                        135deg,
-                        var(--color-primary) 0%,
-                        var(--color-primary-dark) 100%
-                      );
-                      border-color: var(--color-primary-dark);
-                      color: white;
-                    "
-                  >
-                    {{ currentUser.rank }}
-                  </div>
-                  <div>
-                    <p class="text-sm" style="color: var(--color-secondary)">
-                      Your Ranking
-                    </p>
-                    <p
-                      class="text-lg font-bold"
-                      style="color: var(--color-light)"
-                    >
-                      {{ currentUser.name }}
-                    </p>
-                    <p class="text-sm" style="color: var(--color-secondary)">
-                      {{ formatPoints(currentUser.points) }} points
-                    </p>
-                  </div>
-                </div>
-                <button class="btn-primary">
-                  View Full Profile
-                  <svg
-                    class="w-4 h-4 ml-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 5l7 7-7 7"
-                    ></path>
-                  </svg>
-                </button>
-              </div>
             </div>
           </div>
         </main>
@@ -849,7 +780,10 @@ export default {
     );
 
     // Top Rankings data
-    const topThree = computed(() => tournamentStore.topThree);
+    const topThree = computed(() => {
+      const participants = tournamentStore.participants || [];
+      return participants.slice(0, 3);
+    });
 
     // Full Leaderboard data
     const leaderboardData = computed(() => tournamentStore.fullLeaderboard);
@@ -875,6 +809,21 @@ export default {
       });
     };
 
+    const getTeamColor = (colorName) => {
+      const colors = {
+        blue: "#3B82F6",
+        peach: "#FFB599",
+        red: "#EF4444",
+        green: "#10B981",
+        yellow: "#F59E0B",
+        purple: "#8B5CF6",
+        orange: "#F97316",
+        pink: "#EC4899",
+        gray: "#6B7280",
+      };
+      return colors[colorName] || "#6B7280";
+    };
+
     return {
       // Search
       searchQuery,
@@ -897,6 +846,7 @@ export default {
       formatPoints,
       formatDate,
       formatTime,
+      getTeamColor,
     };
   },
 };

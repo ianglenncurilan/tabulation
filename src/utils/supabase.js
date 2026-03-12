@@ -189,3 +189,14 @@ export const subscribeToEvents = (callback) => {
     )
     .subscribe();
 };
+
+// Get participants with calculated points and medals
+export const getParticipants = async () => {
+  const { data, error } = await supabase
+    .from("participants")
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  if (error) throw error;
+  return data || [];
+};

@@ -11,6 +11,22 @@
         </p>
       </div>
       <div class="flex items-center space-x-4">
+        <button @click="showAddTeamModal = true" class="btn-secondary">
+          <svg
+            class="w-4 h-4 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            ></path>
+          </svg>
+          Add Team
+        </button>
         <select
           v-model="selectedEventId"
           @change="fetchScores"
@@ -39,7 +55,7 @@
               d="M12 6v6m0 0v6m0-6h6m-6 0H6"
             ></path>
           </svg>
-          Add Score
+          Add Result
         </button>
       </div>
     </div>
@@ -142,10 +158,10 @@
                 Team Name
               </th>
               <th
-                class="px-6 py-4 text-center text-xs font-medium uppercase tracking-wider"
+                class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider"
                 style="color: var(--color-secondary)"
               >
-                Current Score
+                POINTS
               </th>
               <th
                 class="px-6 py-4 text-center text-xs font-medium uppercase tracking-wider"
@@ -200,62 +216,41 @@
                 >
               </td>
 
-              <!-- Current Score -->
+              <!-- POINTS -->
               <td class="table-cell text-center">
-                <div class="flex items-center justify-center space-x-2">
-                  <button
-                    @click="decrementScore(score)"
-                    class="w-8 h-8 rounded flex items-center justify-center border-2"
-                    style="
-                      background: var(--color-dark);
-                      border-color: var(--color-border);
-                    "
-                  >
-                    <svg
-                      class="w-4 h-4"
-                      style="color: var(--color-secondary)"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                <div class="flex items-center justify-center">
+                  <div v-if="score.medal_type" class="text-center">
+                    <div class="text-2xl mb-1">
+                      <span
+                        v-if="score.medal_type === 'gold'"
+                        class="text-yellow-500"
+                        >🥇</span
+                      >
+                      <span
+                        v-else-if="score.medal_type === 'silver'"
+                        class="text-gray-400"
+                        >🥈</span
+                      >
+                      <span
+                        v-else-if="score.medal_type === 'bronze'"
+                        class="text-orange-600"
+                        >🥉</span
+                      >
+                    </div>
+                    <div
+                      class="text-lg font-bold"
+                      style="color: var(--color-light)"
                     >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M20 12H4"
-                      ></path>
-                    </svg>
-                  </button>
-                  <input
-                    v-model.number="score.score_value"
-                    @change="updateScore(score)"
-                    type="number"
-                    class="w-20 text-center input-modern"
-                    style="font-size: 1.25rem; font-weight: bold"
-                  />
-                  <button
-                    @click="incrementScore(score)"
-                    class="w-8 h-8 rounded flex items-center justify-center border-2"
-                    style="
-                      background: var(--color-dark);
-                      border-color: var(--color-border);
-                    "
+                      {{ getMedalPoints(score.medal_type) }} pts
+                    </div>
+                  </div>
+                  <div
+                    v-else
+                    class="text-lg font-bold"
+                    style="color: var(--color-light)"
                   >
-                    <svg
-                      class="w-4 h-4"
-                      style="color: var(--color-secondary)"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 4v16m8-8H4"
-                      ></path>
-                    </svg>
-                  </button>
+                    {{ score.score_value }}
+                  </div>
                 </div>
               </td>
 
@@ -355,14 +350,112 @@
       </p>
     </div>
 
-    <!-- Add/Edit Score Modal -->
+    <!-- Add Team Modal -->
+    <div
+      v-if="showAddTeamModal"
+      class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50"
+    >
+      <div class="card p-6 w-full max-w-md shadow-2xl">
+        <h3 class="text-lg font-bold mb-4" style="color: var(--color-light)">
+          Add New Team
+        </h3>
+
+        <form @submit.prevent="handleTeamSubmit" class="space-y-4">
+          <div>
+            <label
+              class="block text-sm font-medium mb-2"
+              style="color: var(--color-light)"
+              >Team Name</label
+            >
+            <input
+              v-model="teamForm.name"
+              type="text"
+              required
+              class="input-modern w-full"
+              placeholder="Enter team name"
+            />
+          </div>
+
+          <div>
+            <label
+              class="block text-sm font-medium mb-2"
+              style="color: var(--color-light)"
+              >Avatar</label
+            >
+            <input
+              v-model="teamForm.avatar"
+              type="text"
+              class="input-modern w-full"
+              placeholder="Avatar filename (e.g., team.jpg)"
+            />
+          </div>
+
+          <div>
+            <label
+              class="block text-sm font-medium mb-2"
+              style="color: var(--color-light)"
+              >Team Color</label
+            >
+            <select
+              v-model="teamForm.color"
+              required
+              class="input-modern w-full"
+            >
+              <option value="">Select color</option>
+              <option value="blue">Blue</option>
+              <option value="red">Red</option>
+              <option value="green">Green</option>
+              <option value="yellow">Yellow</option>
+              <option value="purple">Purple</option>
+              <option value="orange">Orange</option>
+              <option value="pink">Pink</option>
+              <option value="gray">Gray</option>
+            </select>
+          </div>
+
+          <div class="flex justify-end space-x-3 pt-4">
+            <button type="button" @click="closeTeamModal" class="btn-secondary">
+              Cancel
+            </button>
+            <button type="submit" :disabled="submitting" class="btn-primary">
+              <span v-if="submitting" class="flex items-center">
+                <svg
+                  class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Adding...
+              </span>
+              <span v-else>Add Team</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add/Edit Result Modal -->
     <div
       v-if="showAddScoreModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50"
     >
-      <div class="card p-6 w-full max-w-md">
+      <div class="card p-6 w-full max-w-md shadow-2xl">
         <h3 class="text-lg font-bold mb-4" style="color: var(--color-light)">
-          {{ editingScore ? "Edit Score" : "Add Team Score" }}
+          {{ editingScore ? "Edit Result" : "Add Tournament Result" }}
         </h3>
 
         <form @submit.prevent="handleScoreSubmit" class="space-y-4">
@@ -378,11 +471,13 @@
               class="input-modern w-full"
             >
               <option value="">Select team</option>
-              <option value="Information Technology">
-                Information Technology
+              <option
+                v-for="team in tournamentStore.participants"
+                :key="team.id"
+                :value="team.name"
+              >
+                {{ team.name }}
               </option>
-              <option value="Information System">Information System</option>
-              <option value="Computer Science">Computer Science</option>
             </select>
           </div>
 
@@ -390,14 +485,32 @@
             <label
               class="block text-sm font-medium mb-2"
               style="color: var(--color-light)"
-              >Score</label
+              >Medal Position</label
             >
-            <input
-              v-model.number="scoreForm.scoreValue"
-              type="number"
+            <select
+              v-model="scoreForm.medalType"
               required
               class="input-modern w-full"
-              placeholder="Enter score"
+            >
+              <option value="">Select medal</option>
+              <option value="gold">🥇 Gold (30 points)</option>
+              <option value="silver">🥈 Silver (20 points)</option>
+              <option value="bronze">🥉 Bronze (10 points)</option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              class="block text-sm font-medium mb-2"
+              style="color: var(--color-light)"
+              >Event Name</label
+            >
+            <input
+              v-model="scoreForm.eventName"
+              type="text"
+              required
+              class="input-modern w-full"
+              placeholder="Enter event name (e.g., Basketball Finals)"
             />
           </div>
 
@@ -443,9 +556,9 @@
     <!-- Delete Confirmation Modal -->
     <div
       v-if="showDeleteModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50"
     >
-      <div class="card p-6 w-full max-w-sm">
+      <div class="card p-6 w-full max-w-sm shadow-2xl">
         <div class="text-center">
           <svg
             class="mx-auto h-12 w-12"
@@ -513,6 +626,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useAuthStore } from "@/stores/useAuthStore.js";
+import { useTournamentStore } from "@/stores/useTournamentStore.js";
 import {
   getEvents,
   getScores,
@@ -522,6 +636,7 @@ import {
 } from "@/utils/supabase.js";
 
 const authStore = useAuthStore();
+const tournamentStore = useTournamentStore();
 
 // State
 const loading = ref(false);
@@ -532,12 +647,20 @@ const events = ref([]);
 const scores = ref([]);
 const showAddScoreModal = ref(false);
 const showDeleteModal = ref(false);
+const showAddTeamModal = ref(false);
 const editingScore = ref(null);
 const deletingScore = ref(null);
 
 const scoreForm = ref({
   teamName: "",
-  scoreValue: 0,
+  medalType: "",
+  eventName: "",
+});
+
+const teamForm = ref({
+  name: "",
+  avatar: "",
+  color: "",
 });
 
 // Computed
@@ -577,27 +700,37 @@ const handleScoreSubmit = async () => {
   try {
     submitting.value = true;
 
+    // Calculate points based on medal type
+    const medalPoints = {
+      gold: 30,
+      silver: 20,
+      bronze: 10,
+    };
+
     const scoreData = {
       event_id: selectedEventId.value,
       team_name: scoreForm.value.teamName,
-      score_value: scoreForm.value.scoreValue,
-      updated_by: authStore.user.id,
+      score_value: medalPoints[scoreForm.value.medalType],
+      medal_type: scoreForm.value.medalType,
+      event_name: scoreForm.value.eventName,
     };
 
     if (editingScore.value) {
-      await updateScore(
-        editingScore.value.id,
-        scoreData.scoreValue,
-        authStore.user.id,
-      );
+      await updateScore(editingScore.value.id, scoreData);
     } else {
       await createScore(scoreData);
+
+      // Update tournament store with medal
+      const teamId = getTeamIdByName(scoreForm.value.teamName);
+      if (teamId) {
+        tournamentStore.addMedal(teamId, scoreForm.value.medalType);
+      }
     }
 
     closeScoreModal();
     await fetchScores();
   } catch (error) {
-    console.error("Error saving score:", error);
+    console.error("Error saving result:", error);
   } finally {
     submitting.value = false;
   }
@@ -663,7 +796,63 @@ const closeScoreModal = () => {
   editingScore.value = null;
   scoreForm.value = {
     teamName: "",
-    scoreValue: 0,
+    medalType: "",
+    eventName: "",
+  };
+};
+
+const getTeamIdByName = (teamName) => {
+  const team = tournamentStore.participants.find((p) => p.name === teamName);
+  return team ? team.id : null;
+};
+
+const getMedalPoints = (medalType) => {
+  const points = {
+    gold: 30,
+    silver: 20,
+    bronze: 10,
+  };
+  return points[medalType] || 0;
+};
+
+// Team management functions
+const handleTeamSubmit = async () => {
+  try {
+    submitting.value = true;
+
+    const teamData = {
+      name: teamForm.value.name,
+      avatar: teamForm.value.avatar || "/default-avatar.png",
+      color: teamForm.value.color,
+      points: 0,
+      rank: tournamentStore.participants.length + 1,
+      medals: { gold: 0, silver: 0, bronze: 0 },
+      recentForm: ["L", "L", "L", "L", "L"],
+    };
+
+    // Add team to tournament store
+    tournamentStore.participants.push(teamData);
+
+    // Re-sort participants by points and update ranks
+    tournamentStore.participants.sort((a, b) => b.points - a.points);
+    tournamentStore.participants.forEach((p, index) => {
+      p.rank = index + 1;
+    });
+
+    closeTeamModal();
+  } catch (error) {
+    console.error("Error adding team:", error);
+  } finally {
+    submitting.value = false;
+  }
+};
+
+const closeTeamModal = () => {
+  showAddTeamModal.value = false;
+  teamForm.value = {
+    name: "",
+    avatar: "",
+    color: "",
   };
 };
 

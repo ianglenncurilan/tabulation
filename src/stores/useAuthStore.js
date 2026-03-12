@@ -52,8 +52,17 @@ export const useAuthStore = defineStore("auth", () => {
         }
       }
     } catch (err) {
-      error.value = err.message;
-      console.error("Auth initialization error:", err);
+      // Don't treat AuthSessionMissingError as an actual error - it's normal when no user is logged in
+      if (
+        err.message?.includes("Auth session missing") ||
+        err.name === "AuthSessionMissingError"
+      ) {
+        // No active session - this is normal, just continue without a user
+        console.log("No active session found");
+      } else {
+        error.value = err.message;
+        console.error("Auth initialization error:", err);
+      }
     } finally {
       loading.value = false;
     }
@@ -93,10 +102,23 @@ export const useAuthStore = defineStore("auth", () => {
 
       const { user: authUser } = await signUp(email, password, fullName, role);
 
+      // For accounts without email confirmation, the user is immediately available
+      if (authUser && !authUser.email_confirmed_at) {
+        // Auto-login after successful registration
+        await login(email, password);
+      }
+
       return { success: true, user: authUser };
     } catch (err) {
       error.value = err.message;
-      return { success: false, error: err.message };
+
+      // Handle rate limiting specifically
+      if (err.message?.includes("rate limit") || err.status === 429) {
+        error.value =
+          "Too many signup attempts. Please wait a few minutes before trying again.";
+      }
+
+      return { success: false, error: error.value };
     } finally {
       loading.value = false;
     }

@@ -23,7 +23,11 @@
                 border-color: var(--color-primary-dark);
               "
             >
-              <span class="text-white text-2xl font-bold">🏆</span>
+              <img
+                src="/LOGO wreck.png"
+                alt="Wreck-It Ralph Logo"
+                class="w-24 h-24 object-contain"
+              />
             </div>
             <div>
               <h1 class="text-xl font-bold" style="color: var(--color-light)">

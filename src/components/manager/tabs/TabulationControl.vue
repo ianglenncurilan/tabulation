@@ -372,13 +372,18 @@
               style="color: var(--color-light)"
               >Team Name</label
             >
-            <input
+            <select
               v-model="scoreForm.teamName"
-              type="text"
               required
               class="input-modern w-full"
-              placeholder="Enter team name"
-            />
+            >
+              <option value="">Select team</option>
+              <option value="Information Technology">
+                Information Technology
+              </option>
+              <option value="Information System">Information System</option>
+              <option value="Computer Science">Computer Science</option>
+            </select>
           </div>
 
           <div>

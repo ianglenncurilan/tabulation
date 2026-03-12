@@ -284,10 +284,10 @@
         <main class="flex-1 space-y-10">
           <!-- Top Rankings (Integrated) -->
           <div class="fade-in">
-            <div class="grid grid-cols-3 gap-6 mb-8 items-center">
+            <div class="grid grid-cols-3 gap-4 mb-6 items-center">
               <!-- #1 Position (Bigger and Centered) -->
               <div
-                class="card card-hover p-8 relative overflow-hidden pixel-glow transform scale-110"
+                class="card card-hover p-4 relative overflow-hidden pixel-glow transform scale-105"
                 style="
                   background: linear-gradient(
                     135deg,
@@ -300,19 +300,19 @@
               >
                 <!-- Winner Crown -->
                 <div
-                  class="absolute -top-2 -right-2 w-16 h-16 rounded-full flex items-center justify-center shadow-xl border-2"
+                  class="absolute -top-1 -right-1 w-10 h-10 rounded-full flex items-center justify-center shadow-lg border-2"
                   style="
                     background: var(--color-light);
                     border-color: var(--color-primary-dark);
                   "
                 >
-                  <span class="text-3xl">🥇</span>
+                  <span class="text-xl">🥇</span>
                 </div>
 
                 <div class="text-center">
-                  <div class="flex justify-center mb-6">
+                  <div class="flex justify-center mb-3">
                     <div
-                      class="w-24 h-24 rounded-full flex items-center justify-center text-4xl border-4 shadow-xl"
+                      class="w-16 h-16 rounded-full flex items-center justify-center text-2xl border-3 shadow-lg"
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);
@@ -322,9 +322,9 @@
                       {{ topThree[0].avatar }}
                     </div>
                   </div>
-                  <div class="mb-3">
+                  <div class="mb-2">
                     <span
-                      class="inline-block px-4 py-2 rounded-full text-lg font-bold border-2"
+                      class="inline-block px-3 py-1 rounded-full text-sm font-bold border-2"
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);
@@ -334,15 +334,15 @@
                       >1ST PLACE</span
                     >
                   </div>
-                  <div class="font-bold text-2xl mb-3" style="color: white">
+                  <div class="font-bold text-lg mb-2" style="color: white">
                     {{ topThree[0].name }}
                   </div>
-                  <div class="text-3xl font-bold mb-6" style="color: white">
+                  <div class="text-xl font-bold mb-3" style="color: white">
                     {{ formatPoints(topThree[0].points) }}
                   </div>
-                  <div class="flex items-center justify-center space-x-3">
+                  <div class="flex items-center justify-center space-x-2">
                     <span
-                      class="inline-flex items-center px-3 py-2 rounded text-lg font-bold border"
+                      class="inline-flex items-center px-2 py-1 rounded text-xs font-bold border"
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);
@@ -352,7 +352,7 @@
                       >{{ topThree[0].record.wins }}W</span
                     >
                     <span
-                      class="inline-flex items-center px-3 py-2 rounded text-lg font-bold border"
+                      class="inline-flex items-center px-2 py-1 rounded text-xs font-bold border"
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);
@@ -367,7 +367,7 @@
 
               <!-- #2 Position -->
               <div
-                class="card card-hover p-6 relative overflow-hidden"
+                class="card card-hover p-3 relative overflow-hidden"
                 style="
                   background: linear-gradient(
                     135deg,
@@ -378,19 +378,19 @@
               >
                 <!-- Silver Medal -->
                 <div
-                  class="absolute -top-2 -right-2 w-12 h-12 rounded-full flex items-center justify-center shadow-lg border-2"
+                  class="absolute -top-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center shadow-md border-2"
                   style="
                     background: var(--color-light);
                     border-color: var(--color-accent);
                   "
                 >
-                  <span class="text-2xl">🥈</span>
+                  <span class="text-lg">🥈</span>
                 </div>
 
                 <div class="text-center">
-                  <div class="flex justify-center mb-4">
+                  <div class="flex justify-center mb-2">
                     <div
-                      class="w-16 h-16 rounded-full flex items-center justify-center text-2xl border-3 shadow-lg"
+                      class="w-12 h-12 rounded-full flex items-center justify-center text-lg border-2 shadow-md"
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);
@@ -400,9 +400,9 @@
                       {{ topThree[1].avatar }}
                     </div>
                   </div>
-                  <div class="mb-2">
+                  <div class="mb-1">
                     <span
-                      class="inline-block px-3 py-1 rounded-full text-sm font-bold border-2"
+                      class="inline-block px-2 py-1 rounded-full text-xs font-bold border-2"
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);
@@ -412,15 +412,15 @@
                       >2ND PLACE</span
                     >
                   </div>
-                  <div class="font-bold text-lg mb-2" style="color: white">
+                  <div class="font-bold text-sm mb-1" style="color: white">
                     {{ topThree[1].name }}
                   </div>
-                  <div class="text-xl font-bold mb-4" style="color: white">
+                  <div class="text-lg font-bold mb-2" style="color: white">
                     {{ formatPoints(topThree[1].points) }}
                   </div>
-                  <div class="flex items-center justify-center space-x-2">
+                  <div class="flex items-center justify-center space-x-1">
                     <span
-                      class="inline-flex items-center px-2 py-1 rounded text-xs font-bold border"
+                      class="inline-flex items-center px-1 py-0.5 rounded text-xs font-bold border"
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);
@@ -430,7 +430,7 @@
                       >{{ topThree[1].record.wins }}W</span
                     >
                     <span
-                      class="inline-flex items-center px-2 py-1 rounded text-xs font-bold border"
+                      class="inline-flex items-center px-1 py-0.5 rounded text-xs font-bold border"
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);
@@ -445,7 +445,7 @@
 
               <!-- #3 Position -->
               <div
-                class="card card-hover p-6 relative overflow-hidden"
+                class="card card-hover p-3 relative overflow-hidden"
                 style="
                   background: linear-gradient(
                     135deg,
@@ -456,19 +456,19 @@
               >
                 <!-- Bronze Medal -->
                 <div
-                  class="absolute -top-2 -right-2 w-12 h-12 rounded-full flex items-center justify-center shadow-lg border-2"
+                  class="absolute -top-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center shadow-md border-2"
                   style="
                     background: var(--color-primary);
                     border-color: var(--color-primary-dark);
                   "
                 >
-                  <span class="text-2xl">🥉</span>
+                  <span class="text-lg">🥉</span>
                 </div>
 
                 <div class="text-center">
-                  <div class="flex justify-center mb-4">
+                  <div class="flex justify-center mb-2">
                     <div
-                      class="w-16 h-16 rounded-full flex items-center justify-center text-2xl border-3 shadow-lg"
+                      class="w-12 h-12 rounded-full flex items-center justify-center text-lg border-2 shadow-md"
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);
@@ -478,9 +478,9 @@
                       {{ topThree[2].avatar }}
                     </div>
                   </div>
-                  <div class="mb-2">
+                  <div class="mb-1">
                     <span
-                      class="inline-block px-3 py-1 rounded-full text-sm font-bold border-2"
+                      class="inline-block px-2 py-1 rounded-full text-xs font-bold border-2"
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);
@@ -490,15 +490,15 @@
                       >3RD PLACE</span
                     >
                   </div>
-                  <div class="font-bold text-lg mb-2" style="color: white">
+                  <div class="font-bold text-sm mb-1" style="color: white">
                     {{ topThree[2].name }}
                   </div>
-                  <div class="text-xl font-bold mb-4" style="color: white">
+                  <div class="text-lg font-bold mb-2" style="color: white">
                     {{ formatPoints(topThree[2].points) }}
                   </div>
-                  <div class="flex items-center justify-center space-x-2">
+                  <div class="flex items-center justify-center space-x-1">
                     <span
-                      class="inline-flex items-center px-2 py-1 rounded text-xs font-bold border"
+                      class="inline-flex items-center px-1 py-0.5 rounded text-xs font-bold border"
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);
@@ -508,7 +508,7 @@
                       >{{ topThree[2].record.wins }}W</span
                     >
                     <span
-                      class="inline-flex items-center px-2 py-1 rounded text-xs font-bold border"
+                      class="inline-flex items-center px-1 py-0.5 rounded text-xs font-bold border"
                       style="
                         background: rgba(255, 255, 255, 0.2);
                         backdrop-filter: blur(4px);

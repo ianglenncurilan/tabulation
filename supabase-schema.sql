@@ -19,7 +19,9 @@ CREATE TABLE IF NOT EXISTS events (
   event_name TEXT NOT NULL,
   is_live BOOLEAN DEFAULT FALSE,
   category TEXT NOT NULL CHECK (category IN ('sports', 'esports')),
-  created_by UUID REFERENCES profiles(id),
+  event_date DATE NOT NULL,
+  start_time TIME NOT NULL,
+  created_by UUID REFERENCES profiles(id) ON DELETE SET NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

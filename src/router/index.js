@@ -4,13 +4,13 @@ import { useAuthStore } from "@/stores/useAuthStore.js";
 // Components
 import ManagerAuth from "@/components/auth/ManagerAuth.vue";
 import ManagerDashboard from "@/components/manager/ManagerDashboard.vue";
-import Dashboard from "@/views/Dashboard.vue";
+import DashboardView from "@/views/DashboardView.vue";
 
 const routes = [
   {
     path: "/",
     name: "PublicDashboard",
-    component: Dashboard,
+    component: DashboardView,
     meta: { requiresAuth: false },
   },
   {

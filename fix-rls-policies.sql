@@ -26,7 +26,7 @@ CREATE POLICY "Users can view own profile" ON profiles
 CREATE POLICY "Users can update own profile" ON profiles
   FOR UPDATE USING (auth.uid() = id);
 
--- Also fix events and scores policies
+-- Events RLS policies - FIXED
 DROP POLICY IF EXISTS "Managers can manage all events" ON events;
 DROP POLICY IF EXISTS "Staff can view events" ON events;
 
@@ -42,6 +42,14 @@ CREATE POLICY "Staff can view events" ON events
     auth.jwt()->>'role' = 'staff'
   );
 
+-- Also allow managers to insert events
+CREATE POLICY "Managers can insert events" ON events
+  FOR INSERT WITH CHECK (
+    auth.role() = 'authenticated' AND 
+    auth.jwt()->>'role' = 'manager'
+  );
+
+-- Scores RLS policies - FIXED
 DROP POLICY IF EXISTS "Managers can manage all scores" ON scores;
 DROP POLICY IF EXISTS "Staff can view scores" ON scores;
 
@@ -55,4 +63,11 @@ CREATE POLICY "Staff can view scores" ON scores
   FOR SELECT USING (
     auth.role() = 'authenticated' AND 
     auth.jwt()->>'role' = 'staff'
+  );
+
+-- Also allow managers to insert scores
+CREATE POLICY "Managers can insert scores" ON scores
+  FOR INSERT WITH CHECK (
+    auth.role() = 'authenticated' AND 
+    auth.jwt()->>'role' = 'manager'
   );

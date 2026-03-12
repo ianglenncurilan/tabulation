@@ -94,6 +94,30 @@
           {{ event.event_name }}
         </h3>
 
+        <!-- Event Date and Time -->
+        <div class="mb-4">
+          <div
+            class="flex items-center text-sm"
+            style="color: var(--color-secondary)"
+          >
+            <svg
+              class="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              ></path>
+            </svg>
+            {{ formatDate(event.event_date) }} at
+            {{ formatTime(event.start_time) }}
+          </div>
+        </div>
+
         <!-- Category Badge -->
         <div class="mb-4">
           <span
@@ -264,6 +288,34 @@
             </select>
           </div>
 
+          <div>
+            <label
+              class="block text-sm font-medium mb-2"
+              style="color: var(--color-light)"
+              >Event Date</label
+            >
+            <input
+              v-model="form.eventDate"
+              type="date"
+              required
+              class="input-modern w-full"
+            />
+          </div>
+
+          <div>
+            <label
+              class="block text-sm font-medium mb-2"
+              style="color: var(--color-light)"
+              >Start Time</label
+            >
+            <input
+              v-model="form.startTime"
+              type="time"
+              required
+              class="input-modern w-full"
+            />
+          </div>
+
           <div class="flex items-center">
             <input
               v-model="form.isLive"
@@ -385,10 +437,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useAuthStore } from "@/stores/useAuthStore.js";
+import { useTournamentStore } from "@/stores/useTournamentStore.js";
 import {
-  getEvents,
   createEvent,
   updateEvent,
   deleteEvent as deleteEventFromDb,
@@ -396,6 +448,7 @@ import {
 } from "@/utils/supabase.js";
 
 const authStore = useAuthStore();
+const tournamentStore = useTournamentStore();
 
 // State
 const loading = ref(false);
@@ -409,23 +462,18 @@ const deletingEvent = ref(null);
 const form = ref({
   eventName: "",
   category: "",
+  eventDate: "",
+  startTime: "",
   isLive: false,
 });
 
-const events = ref([]);
+// Use tournament store for events
+const events = computed(() => tournamentStore.events);
 let realtimeSubscription = null;
 
 // Methods
 const fetchEvents = async () => {
-  try {
-    loading.value = true;
-    const data = await getEvents();
-    events.value = data;
-  } catch (error) {
-    console.error("Error fetching events:", error);
-  } finally {
-    loading.value = false;
-  }
+  await tournamentStore.fetchEvents();
 };
 
 const handleSubmit = async () => {
@@ -435,8 +483,9 @@ const handleSubmit = async () => {
     const eventData = {
       event_name: form.value.eventName,
       category: form.value.category,
+      event_date: form.value.eventDate,
+      start_time: form.value.startTime,
       is_live: form.value.isLive,
-      created_by: authStore.user.id,
     };
 
     if (editingEvent.value) {
@@ -459,6 +508,8 @@ const editEvent = (event) => {
   form.value = {
     eventName: event.event_name,
     category: event.category,
+    eventDate: event.event_date,
+    startTime: event.start_time,
     isLive: event.is_live,
   };
   showCreateModal.value = true;
@@ -497,6 +548,8 @@ const closeModal = () => {
   form.value = {
     eventName: "",
     category: "",
+    eventDate: "",
+    startTime: "",
     isLive: false,
   };
 };
@@ -509,23 +562,20 @@ const formatDate = (dateString) => {
   });
 };
 
-// Realtime updates
-const setupRealtime = () => {
-  realtimeSubscription = subscribeToEvents((payload) => {
-    console.log("Realtime update received:", payload);
-    fetchEvents();
+const formatTime = (timeString) => {
+  return new Date(`1970-01-01T${timeString}`).toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };
 
 // Lifecycle
 onMounted(() => {
-  fetchEvents();
-  setupRealtime();
+  tournamentStore.fetchEvents();
+  tournamentStore.setupRealtime();
 });
 
 onUnmounted(() => {
-  if (realtimeSubscription) {
-    realtimeSubscription.unsubscribe();
-  }
+  // Cleanup handled by tournament store
 });
 </script>

@@ -25,9 +25,6 @@
               </h1>
             </div>
           </div>
-
-
-          
         </div>
       </div>
     </header>
@@ -49,16 +46,16 @@
     <div class="px-8 py-12">
       <div class="flex gap-8">
         <!-- Sidebar (Integrated) -->
-        <aside class="w-80 flex-shrink-0">
-          <div class="space-y-6">
-            <!-- Sports Section -->
-            <div class="card card-hover p-6">
+        <aside class="w-64 flex-shrink-0">
+          <div class="space-y-4">
+            <!-- Events Section -->
+            <div class="card card-hover p-4">
               <h3
-                class="text-lg font-semibold mb-4 flex items-center"
+                class="text-sm font-semibold mb-3 flex items-center"
                 style="color: var(--color-light)"
               >
                 <svg
-                  class="w-5 h-5 mr-2"
+                  class="w-4 h-4 mr-2"
                   style="color: var(--color-primary)"
                   fill="none"
                   stroke="currentColor"
@@ -71,51 +68,73 @@
                     d="M13 10V3L4 14h7v7l9-11h-7z"
                   ></path>
                 </svg>
-                Sports
+                Events
               </h3>
-              <div class="space-y-3">
+              <div class="space-y-2">
+                <!-- Debug info -->
+                <div class="text-xs" style="color: var(--color-secondary)">
+                  Debug: {{ allEvents.length }} events total
+                </div>
                 <div
-                  v-for="sport in sports"
-                  :key="sport.id"
-                  class="flex items-center justify-between p-3 border-2 rounded transition-all duration-200 cursor-pointer"
+                  v-for="event in allEvents.slice(0, 5)"
+                  :key="event.id"
+                  class="flex items-center justify-between p-2 border rounded transition-all duration-200 cursor-pointer"
                   style="border-color: var(--color-border)"
                   onmouseover="this.style.borderColor = 'var(--color-primary)'"
                   onmouseout="this.style.borderColor = 'var(--color-border)'"
                 >
-                  <div class="flex items-center space-x-3">
-                    <span class="text-2xl">{{ sport.icon }}</span>
+                  <div class="flex items-center space-x-2">
+                    <span class="text-lg">
+                      {{ event.category === "sports" ? "🏆" : "🎮" }}
+                    </span>
+                    <div class="flex-1">
+                      <div
+                        class="text-xs font-medium"
+                        style="color: var(--color-light)"
+                      >
+                        {{ event.event_name }}
+                      </div>
+                      <div
+                        class="text-xs"
+                        style="color: var(--color-secondary)"
+                      >
+                        {{ formatDate(event.event_date) }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex items-center space-x-1">
+                    <div v-if="event.is_live" class="flex items-center">
+                      <div
+                        class="w-1.5 h-1.5 rounded-full animate-pulse mr-1"
+                        style="background: var(--color-primary-dark)"
+                      ></div>
+                      <span class="badge badge-success text-xs">LIVE</span>
+                    </div>
                     <span
-                      class="font-medium"
-                      style="color: var(--color-light)"
-                      >{{ sport.name }}</span
+                      v-else
+                      class="text-xs"
+                      style="color: var(--color-secondary)"
                     >
+                      {{ formatTime(event.start_time) }}
+                    </span>
                   </div>
-                  <div v-if="sport.active" class="flex items-center">
-                    <svg
-                      class="w-5 h-5"
-                      style="color: var(--color-primary)"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clip-rule="evenodd"
-                      ></path>
-                    </svg>
-                  </div>
+                </div>
+                <div v-if="allEvents.length === 0" class="text-center py-2">
+                  <span class="text-xs" style="color: var(--color-secondary)">
+                    No events scheduled
+                  </span>
                 </div>
               </div>
             </div>
 
             <!-- Active Matches -->
-            <div class="card card-hover p-6">
+            <div class="card card-hover p-4">
               <h3
-                class="text-lg font-semibold mb-4 flex items-center"
+                class="text-sm font-semibold mb-3 flex items-center"
                 style="color: var(--color-light)"
               >
                 <svg
-                  class="w-5 h-5 mr-2"
+                  class="w-4 h-4 mr-2"
                   style="color: var(--color-primary-dark)"
                   fill="none"
                   stroke="currentColor"
@@ -136,23 +155,23 @@
                 </svg>
                 Active Matches
               </h3>
-              <div class="space-y-3">
+              <div v-if="activeMatches.length > 0" class="space-y-2">
                 <div
                   v-for="match in activeMatches"
                   :key="match.id"
-                  class="p-4 border-2 rounded"
+                  class="p-3 border-2 rounded"
                   style="
                     background: var(--color-dark);
                     border-color: var(--color-border);
                   "
                 >
-                  <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center justify-between mb-2">
                     <div class="flex items-center space-x-2">
                       <div
                         class="w-2 h-2 rounded-full animate-pulse pixel-glow"
                         style="background: var(--color-primary-dark)"
                       ></div>
-                      <span class="badge badge-success">LIVE</span>
+                      <span class="badge badge-success text-xs">LIVE</span>
                     </div>
                     <span
                       class="text-xs"
@@ -160,39 +179,65 @@
                       >{{ match.sport }}</span
                     >
                   </div>
-                  <div class="space-y-2">
+                  <div class="space-y-1">
                     <div class="flex justify-between items-center">
                       <span
-                        class="text-sm font-medium"
+                        class="text-xs font-medium"
                         style="color: var(--color-light)"
                         >{{ match.teams.split(" vs ")[0] }}</span
                       >
                       <span
-                        class="text-lg font-bold"
+                        class="text-sm font-bold"
                         style="color: var(--color-primary)"
                         >{{ match.score.split("-")[0] }}</span
                       >
                     </div>
                     <div class="flex justify-between items-center">
                       <span
-                        class="text-sm font-medium"
+                        class="text-xs font-medium"
                         style="color: var(--color-light)"
                         >{{ match.teams.split(" vs ")[1] }}</span
                       >
                       <span
-                        class="text-lg font-bold"
+                        class="text-sm font-bold"
                         style="color: var(--color-primary)"
                         >{{ match.score.split("-")[1] }}</span
                       >
                     </div>
+                    <!-- Event Date and Time -->
+                    <div
+                      class="flex items-center text-xs"
+                      style="color: var(--color-secondary)"
+                    >
+                      <svg
+                        class="w-3 h-3 mr-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        ></path>
+                      </svg>
+                      {{ formatDate(match.event_date) }} at
+                      {{ formatTime(match.start_time) }}
+                    </div>
                   </div>
                 </div>
+              </div>
+              <div v-else class="text-center py-4">
+                <span class="text-xs" style="color: var(--color-secondary)">
+                  No live events currently
+                </span>
               </div>
             </div>
 
             <!-- Quick Stats -->
             <div
-              class="card p-6 pixel-glow"
+              class="card p-4 pixel-glow"
               style="
                 background: linear-gradient(
                   135deg,
@@ -201,32 +246,18 @@
                 );
               "
             >
-              <h3
-                class="text-lg font-semibold mb-4"
-                style="color: var(--color-light)"
-              >
-                Quick Stats
-              </h3>
-              <div class="space-y-3">
-                <div class="flex justify-between items-center">
-                  <span class="text-sm" style="color: var(--color-secondary)"
-                    >Total Participants</span
-                  >
-                  <span
-                    class="font-semibold"
-                    style="color: var(--color-light)"
-                    >{{ totalParticipants }}</span
-                  >
+              <div class="text-center">
+                <div
+                  class="text-2xl font-bold mb-1"
+                  style="color: var(--color-primary)"
+                >
+                  {{ activeMatches.length }}
                 </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-sm" style="color: var(--color-secondary)"
-                    >Active Sports</span
-                  >
-                  <span
-                    class="font-semibold"
-                    style="color: var(--color-light)"
-                    >{{ activeSportsCount }}</span
-                  >
+                <div
+                  class="text-xs font-semibold mb-3"
+                  style="color: var(--color-light)"
+                >
+                  Active Events
                 </div>
                 <div class="flex justify-between items-center">
                   <span class="text-sm" style="color: var(--color-secondary)"
@@ -237,6 +268,12 @@
                     style="color: var(--color-primary)"
                     >{{ activeMatches.length }}</span
                   >
+                </div>
+                <div
+                  class="text-xs text-center"
+                  style="color: var(--color-secondary)"
+                >
+                  {{ totalParticipants }} Participants
                 </div>
               </div>
             </div>
@@ -774,8 +811,9 @@
 </template>
 
 <script>
-import { ref, computed } from "vue";
-import { useTournamentStore } from "../stores/useTournamentStore.js";
+import { defineStore } from "pinia";
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import { useTournamentStore } from "@/stores/useTournamentStore.js";
 
 export default {
   name: "Dashboard",
@@ -783,9 +821,28 @@ export default {
     const tournamentStore = useTournamentStore();
     const searchQuery = ref("");
 
+    // Initialize data on mount
+    onMounted(() => {
+      console.log("DashboardView mounted - initializing data");
+      tournamentStore.initializeData();
+      tournamentStore.setupRealtime();
+
+      // Debug: Log events after initialization
+      setTimeout(() => {
+        console.log("Events after init:", tournamentStore.events);
+        console.log("Active matches:", tournamentStore.activeMatches);
+        console.log("All events count:", tournamentStore.events.length);
+      }, 2000);
+    });
+
+    onUnmounted(() => {
+      // Cleanup if needed
+    });
+
     // Sidebar data
     const sports = computed(() => tournamentStore.sports);
     const activeMatches = computed(() => tournamentStore.activeMatches);
+    const allEvents = computed(() => tournamentStore.events);
     const totalParticipants = computed(() => tournamentStore.totalParticipants);
     const activeSportsCount = computed(
       () => sports.value.filter((s) => s.active).length,
@@ -803,6 +860,21 @@ export default {
       return points.toLocaleString();
     };
 
+    const formatDate = (dateString) => {
+      return new Date(dateString).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    };
+
+    const formatTime = (timeString) => {
+      return new Date(`1970-01-01T${timeString}`).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    };
+
     return {
       // Search
       searchQuery,
@@ -810,6 +882,7 @@ export default {
       // Sidebar
       sports,
       activeMatches,
+      allEvents,
       totalParticipants,
       activeSportsCount,
 
@@ -822,6 +895,8 @@ export default {
 
       // Utilities
       formatPoints,
+      formatDate,
+      formatTime,
     };
   },
 };

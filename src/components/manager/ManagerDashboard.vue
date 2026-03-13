@@ -101,7 +101,7 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 3-1.657 0-3-.895-3-3z"
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 ></path>
               </svg>
             </div>
@@ -292,22 +292,22 @@ const authStore = useAuthStore();
 const tournamentStore = useTournamentStore();
 
 // State
-const activeTab = ref("accounts");
+const activeTab = ref("tabulation");
 
 // Computed Properties
 const totalPointsAwarded = computed(() => {
-  return tournamentStore.participants.reduce(
-    (total, participant) => total + participant.points,
+  return tournamentStore.teams.reduce(
+    (total, team) => total + (team.total_points || 0),
     0,
   );
 });
 
 const totalMedals = computed(() => {
-  return tournamentStore.participants.reduce(
-    (total, participant) => {
-      total.gold += participant.medals.gold;
-      total.silver += participant.medals.silver;
-      total.bronze += participant.medals.bronze;
+  return tournamentStore.teams.reduce(
+    (total, team) => {
+      total.gold += team.gold_medals || 0;
+      total.silver += team.silver_medals || 0;
+      total.bronze += team.bronze_medals || 0;
       return total;
     },
     { gold: 0, silver: 0, bronze: 0 },

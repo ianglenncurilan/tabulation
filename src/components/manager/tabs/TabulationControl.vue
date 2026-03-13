@@ -10,26 +10,10 @@
           Manage scores and tabulation data
         </p>
       </div>
-      <div class="flex items-center space-x-4">
-        <button @click="showAddTeamModal = true" class="btn-secondary">
-          <svg
-            class="w-4 h-4 mr-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-            ></path>
-          </svg>
-          Add Team
-        </button>
+      <div class="flex items-center space-x-4 mb-6">
         <select
           v-model="selectedEventId"
-          @change="fetchScores"
+          @change="fetchPoints"
           class="input-modern w-64"
         >
           <option value="">Select Event</option>
@@ -39,7 +23,7 @@
         </select>
         <button
           v-if="selectedEventId"
-          @click="showAddScoreModal = true"
+          @click="showAddPointModal = true"
           class="btn-primary"
         >
           <svg
@@ -104,7 +88,7 @@
             Total Teams
           </p>
           <p class="text-2xl font-bold" style="color: var(--color-light)">
-            {{ scores.length }}
+            {{ points.length }}
           </p>
         </div>
       </div>
@@ -179,8 +163,8 @@
           </thead>
           <tbody>
             <tr
-              v-for="(score, index) in sortedScores"
-              :key="score.id"
+              v-for="(point, index) in sortedPoints"
+              :key="point.id"
               class="table-row"
             >
               <!-- Rank -->
@@ -212,27 +196,27 @@
                 <span
                   class="text-sm font-medium"
                   style="color: var(--color-light)"
-                  >{{ score.team_name }}</span
+                  >{{ point.team_name }}</span
                 >
               </td>
 
               <!-- POINTS -->
               <td class="table-cell text-center">
                 <div class="flex items-center justify-center">
-                  <div v-if="score.medal_type" class="text-center">
+                  <div v-if="point.medal_type" class="text-center">
                     <div class="text-2xl mb-1">
                       <span
-                        v-if="score.medal_type === 'gold'"
+                        v-if="point.medal_type === 'gold'"
                         class="text-yellow-500"
                         >🥇</span
                       >
                       <span
-                        v-else-if="score.medal_type === 'silver'"
+                        v-else-if="point.medal_type === 'silver'"
                         class="text-gray-400"
                         >🥈</span
                       >
                       <span
-                        v-else-if="score.medal_type === 'bronze'"
+                        v-else-if="point.medal_type === 'bronze'"
                         class="text-orange-600"
                         >🥉</span
                       >
@@ -241,7 +225,7 @@
                       class="text-lg font-bold"
                       style="color: var(--color-light)"
                     >
-                      {{ getMedalPoints(score.medal_type) }} pts
+                      {{ getMedalPoints(point.medal_type) }} pts
                     </div>
                   </div>
                   <div
@@ -249,7 +233,7 @@
                     class="text-lg font-bold"
                     style="color: var(--color-light)"
                   >
-                    {{ score.score_value }}
+                    {{ point.points_value }}
                   </div>
                 </div>
               </td>
@@ -257,7 +241,7 @@
               <!-- Last Updated -->
               <td class="table-cell text-center">
                 <span class="text-sm" style="color: var(--color-secondary)">
-                  {{ formatDateTime(score.updated_at) }}
+                  {{ formatDateTime(point.updated_at) }}
                 </span>
               </td>
 
@@ -265,13 +249,13 @@
               <td class="table-cell text-center">
                 <div class="flex justify-center space-x-2">
                   <button
-                    @click="editScore(score)"
+                    @click="editPoint(point)"
                     class="btn-secondary text-sm"
                   >
                     Edit
                   </button>
                   <button
-                    @click="deleteScore(score)"
+                    @click="deletePoint(point)"
                     class="btn-danger text-sm"
                   >
                     Delete
@@ -284,7 +268,7 @@
       </div>
 
       <!-- Empty State -->
-      <div v-if="!loading && scores.length === 0" class="text-center py-12">
+      <div v-if="!loading && points.length === 0" class="text-center py-12">
         <svg
           class="mx-auto h-12 w-12"
           style="color: var(--color-secondary)"
@@ -300,13 +284,13 @@
           ></path>
         </svg>
         <h3 class="mt-2 text-sm font-medium" style="color: var(--color-light)">
-          No scores found
+          No points found
         </h3>
         <p class="mt-1 text-sm" style="color: var(--color-secondary)">
-          Get started by adding a team score.
+          Get started by adding a team point.
         </p>
         <div class="mt-6">
-          <button @click="showAddScoreModal = true" class="btn-primary">
+          <button @click="showAddPointModal = true" class="btn-primary">
             <svg
               class="w-4 h-4 mr-2"
               fill="none"
@@ -350,273 +334,182 @@
       </p>
     </div>
 
-    <!-- Add Team Modal -->
-    <div
-      v-if="showAddTeamModal"
-      class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50"
-    >
-      <div class="card p-6 w-full max-w-md shadow-2xl">
-        <h3 class="text-lg font-bold mb-4" style="color: var(--color-light)">
-          Add New Team
-        </h3>
-
-        <form @submit.prevent="handleTeamSubmit" class="space-y-4">
-          <div>
-            <label
-              class="block text-sm font-medium mb-2"
-              style="color: var(--color-light)"
-              >Team Name</label
-            >
-            <input
-              v-model="teamForm.name"
-              type="text"
-              required
-              class="input-modern w-full"
-              placeholder="Enter team name"
-            />
-          </div>
-
-          <div>
-            <label
-              class="block text-sm font-medium mb-2"
-              style="color: var(--color-light)"
-              >Avatar</label
-            >
-            <input
-              v-model="teamForm.avatar"
-              type="text"
-              class="input-modern w-full"
-              placeholder="Avatar filename (e.g., team.jpg)"
-            />
-          </div>
-
-          <div>
-            <label
-              class="block text-sm font-medium mb-2"
-              style="color: var(--color-light)"
-              >Team Color</label
-            >
-            <select
-              v-model="teamForm.color"
-              required
-              class="input-modern w-full"
-            >
-              <option value="">Select color</option>
-              <option value="blue">Blue</option>
-              <option value="red">Red</option>
-              <option value="green">Green</option>
-              <option value="yellow">Yellow</option>
-              <option value="purple">Purple</option>
-              <option value="orange">Orange</option>
-              <option value="pink">Pink</option>
-              <option value="gray">Gray</option>
-            </select>
-          </div>
-
-          <div class="flex justify-end space-x-3 pt-4">
-            <button type="button" @click="closeTeamModal" class="btn-secondary">
-              Cancel
-            </button>
-            <button type="submit" :disabled="submitting" class="btn-primary">
-              <span v-if="submitting" class="flex items-center">
-                <svg
-                  class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
-                  ></circle>
-                  <path
-                    class="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                Adding...
-              </span>
-              <span v-else>Add Team</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
     <!-- Add/Edit Result Modal -->
     <div
-      v-if="showAddScoreModal"
-      class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50"
+      v-if="showAddPointModal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style="backdrop-filter: blur(12px); background: rgba(255, 255, 255, 0.1)"
     >
-      <div class="card p-6 w-full max-w-md shadow-2xl">
-        <h3 class="text-lg font-bold mb-4" style="color: var(--color-light)">
-          {{ editingScore ? "Edit Result" : "Add Tournament Result" }}
-        </h3>
+      <div class="w-full max-w-md transform transition-all">
+        <div
+          class="bg-white rounded-2xl shadow-2xl border border-white/20 backdrop-blur-xl"
+        >
+          <!-- Modal Header -->
+          <div class="px-6 py-4 border-b border-gray-100">
+            <h3 class="text-xl font-bold text-gray-900">
+              {{ editingPoint ? "Edit Result" : "Add Result" }}
+            </h3>
+            <p class="text-sm text-gray-500 mt-1">
+              {{ selectedEventName || "Select an event" }}
+            </p>
+          </div>
 
-        <form @submit.prevent="handleScoreSubmit" class="space-y-4">
-          <div>
-            <label
-              class="block text-sm font-medium mb-2"
-              style="color: var(--color-light)"
-              >Team Name</label
-            >
-            <select
-              v-model="scoreForm.teamName"
-              required
-              class="input-modern w-full"
-            >
-              <option value="">Select team</option>
-              <option
-                v-for="team in tournamentStore.participants"
-                :key="team.id"
-                :value="team.name"
+          <!-- Modal Body -->
+          <div class="px-6 py-4 space-y-4">
+            <!-- Team Selection -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Team
+              </label>
+              <select
+                v-model="pointForm.teamName"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                {{ team.name }}
-              </option>
-            </select>
+                <option value="">Select team</option>
+                <option
+                  v-for="team in tournamentStore.teams"
+                  :key="team.id"
+                  :value="team.team_name"
+                >
+                  {{ team.team_name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Medal Type -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Medal Type
+              </label>
+              <select
+                v-model="pointForm.medalType"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Select medal</option>
+                <option value="gold">🥇 Gold</option>
+                <option value="silver">🥈 Silver</option>
+                <option value="bronze">🥉 Bronze</option>
+              </select>
+            </div>
+
+            <!-- Location Field -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Location
+              </label>
+              <input
+                v-model="pointForm.location"
+                type="text"
+                placeholder="Enter event location (e.g., Gymnasium, Field A)"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+
+            <!-- Notes (Optional) -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Notes (Optional)
+              </label>
+              <textarea
+                v-model="pointForm.notes"
+                rows="3"
+                placeholder="Additional notes about this result..."
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              ></textarea>
+            </div>
           </div>
 
-          <div>
-            <label
-              class="block text-sm font-medium mb-2"
-              style="color: var(--color-light)"
-              >Medal Position</label
-            >
-            <select
-              v-model="scoreForm.medalType"
-              required
-              class="input-modern w-full"
-            >
-              <option value="">Select medal</option>
-              <option value="gold">🥇 Gold (30 points)</option>
-              <option value="silver">🥈 Silver (20 points)</option>
-              <option value="bronze">🥉 Bronze (10 points)</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              class="block text-sm font-medium mb-2"
-              style="color: var(--color-light)"
-              >Event Name</label
-            >
-            <input
-              v-model="scoreForm.eventName"
-              type="text"
-              required
-              class="input-modern w-full"
-              placeholder="Enter event name (e.g., Basketball Finals)"
-            />
-          </div>
-
-          <div class="flex justify-end space-x-3 pt-4">
+          <!-- Modal Actions -->
+          <div
+            class="px-6 py-4 border-t border-gray-100 flex justify-end space-x-3"
+          >
             <button
-              type="button"
-              @click="closeScoreModal"
-              class="btn-secondary"
+              @click="closePointModal"
+              class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
             >
               Cancel
             </button>
-            <button type="submit" :disabled="submitting" class="btn-primary">
-              <span v-if="submitting" class="flex items-center">
-                <svg
-                  class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
-                  ></circle>
-                  <path
-                    class="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                {{ editingScore ? "Updating..." : "Adding..." }}
-              </span>
-              <span v-else>{{ editingScore ? "Update" : "Add" }}</span>
+            <button
+              @click="handlePointSubmit"
+              :disabled="submitting || !pointForm.teamName || !selectedEventId"
+              class="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ submitting ? "Saving..." : "Save Result" }}
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
 
     <!-- Delete Confirmation Modal -->
     <div
       v-if="showDeleteModal"
-      class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style="backdrop-filter: blur(12px); background: rgba(255, 255, 255, 0.1)"
     >
-      <div class="card p-6 w-full max-w-sm shadow-2xl">
-        <div class="text-center">
-          <svg
-            class="mx-auto h-12 w-12"
-            style="color: var(--color-primary-dark)"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
-            ></path>
-          </svg>
-          <h3 class="mt-2 text-lg font-bold" style="color: var(--color-light)">
-            Delete Score
-          </h3>
-          <p class="mt-2 text-sm" style="color: var(--color-secondary)">
-            Are you sure you want to delete the score for "{{
-              deletingScore?.team_name
-            }}"? This action cannot be undone.
-          </p>
-        </div>
-        <div class="flex justify-center space-x-3 mt-6">
-          <button @click="showDeleteModal = false" class="btn-secondary">
-            Cancel
-          </button>
-          <button
-            @click="confirmDeleteScore"
-            :disabled="deleting"
-            class="btn-danger"
-          >
-            <span v-if="deleting" class="flex items-center">
-              <svg
-                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                ></circle>
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-              Deleting...
-            </span>
-            <span v-else>Delete</span>
-          </button>
+      <div class="w-full max-w-sm transform transition-all">
+        <div
+          class="bg-white rounded-2xl shadow-2xl border border-white/20 backdrop-blur-xl p-6"
+        >
+          <div class="text-center">
+            <svg
+              class="mx-auto h-12 w-12 text-red-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+              ></path>
+            </svg>
+            <h3 class="mt-2 text-lg font-bold text-gray-900">Delete Point</h3>
+            <p class="mt-2 text-sm text-gray-500">
+              Are you sure you want to delete the point for "{{
+                deletingPoint?.team_name
+              }}"? This action cannot be undone.
+            </p>
+          </div>
+          <div class="flex justify-center space-x-3 mt-6">
+            <button
+              @click="showDeleteModal = false"
+              class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              @click="confirmDeletePoint"
+              :disabled="deleting"
+              class="px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span v-if="deleting" class="flex items-center">
+                <svg
+                  class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Deleting...
+              </span>
+              <span v-else>Delete</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -629,10 +522,10 @@ import { useAuthStore } from "@/stores/useAuthStore.js";
 import { useTournamentStore } from "@/stores/useTournamentStore.js";
 import {
   getEvents,
-  getScores,
-  createScore,
-  updateScore as updateScoreInDb,
-  deleteScore as deleteScoreFromDb,
+  getPoints,
+  createPoint,
+  updatePoint as updatePointInDb,
+  deletePoint as deletePointFromDb,
 } from "@/utils/supabase.js";
 
 const authStore = useAuthStore();
@@ -644,23 +537,17 @@ const submitting = ref(false);
 const deleting = ref(false);
 const selectedEventId = ref("");
 const events = ref([]);
-const scores = ref([]);
-const showAddScoreModal = ref(false);
+const points = ref([]);
+const showAddPointModal = ref(false);
 const showDeleteModal = ref(false);
-const showAddTeamModal = ref(false);
-const editingScore = ref(null);
-const deletingScore = ref(null);
+const editingPoint = ref(null);
+const deletingPoint = ref(null);
 
-const scoreForm = ref({
+const pointForm = ref({
   teamName: "",
   medalType: "",
-  eventName: "",
-});
-
-const teamForm = ref({
-  name: "",
-  avatar: "",
-  color: "",
+  location: "",
+  notes: "",
 });
 
 // Computed
@@ -668,8 +555,8 @@ const selectedEvent = computed(() => {
   return events.value.find((event) => event.id === selectedEventId.value);
 });
 
-const sortedScores = computed(() => {
-  return [...scores.value].sort((a, b) => b.score_value - a.score_value);
+const sortedPoints = computed(() => {
+  return [...points.value].sort((a, b) => b.points_value - a.points_value);
 });
 
 // Methods
@@ -682,53 +569,86 @@ const fetchEvents = async () => {
   }
 };
 
-const fetchScores = async () => {
+const fetchPoints = async () => {
   if (!selectedEventId.value) return;
 
   try {
     loading.value = true;
-    const data = await getScores(selectedEventId.value);
-    scores.value = data;
+    const data = await getPoints(selectedEventId.value);
+    points.value = data;
   } catch (error) {
-    console.error("Error fetching scores:", error);
+    console.error("Error fetching points:", error);
   } finally {
     loading.value = false;
   }
 };
 
-const handleScoreSubmit = async () => {
+const handlePointSubmit = async () => {
   try {
     submitting.value = true;
 
-    // Calculate points based on medal type
-    const medalPoints = {
-      gold: 30,
-      silver: 20,
-      bronze: 10,
+    // Use the selected event ID
+    if (!selectedEventId.value) {
+      throw new Error("No event selected");
+    }
+
+    // Get team ID from team name
+    const team = tournamentStore.teams.find(
+      (t) => t.team_name === pointForm.value.teamName,
+    );
+    if (!team) {
+      console.error("Team not found:", pointForm.value.teamName);
+      console.error(
+        "Available teams:",
+        tournamentStore.teams.map((t) => t.team_name),
+      );
+      throw new Error(
+        `Team "${pointForm.value.teamName}" not found. Available teams: ${tournamentStore.teams.map((t) => t.team_name).join(", ")}`,
+      );
+    }
+
+    console.log("Found team:", team);
+    console.log("Team ID:", team.id);
+
+    const pointData = {
+      event_id: selectedEventId.value, // Use selected event ID
+      team_id: team.id, // Add team ID reference
+      team_name: pointForm.value.teamName,
+      points_value: 0, // Points will be calculated by trigger
+      medal_type: pointForm.value.medalType || null,
+      location: pointForm.value.location || null,
+      notes: pointForm.value.notes || null,
     };
 
-    const scoreData = {
-      event_id: selectedEventId.value,
-      team_name: scoreForm.value.teamName,
-      score_value: medalPoints[scoreForm.value.medalType],
-      medal_type: scoreForm.value.medalType,
-      event_name: scoreForm.value.eventName,
-    };
+    console.log("Point data to create/update:", pointData);
 
-    if (editingScore.value) {
-      await updateScore(editingScore.value.id, scoreData);
+    if (editingPoint.value) {
+      // Update existing point
+      console.log("Updating existing point:", editingPoint.value);
+      await updatePoint(
+        editingPoint.value.id,
+        pointData.points_value,
+        pointData.medal_type,
+        authStore.user.id,
+      );
     } else {
-      await createScore(scoreData);
+      // Create new point
+      console.log("Creating new point");
+      await createPoint(pointData);
 
       // Update tournament store with medal
-      const teamId = getTeamIdByName(scoreForm.value.teamName);
-      if (teamId) {
-        tournamentStore.addMedal(teamId, scoreForm.value.medalType);
+      const teamId = getTeamIdByName(pointForm.value.teamName);
+      if (teamId && pointForm.value.medalType) {
+        await tournamentStore.addMedal(
+          pointForm.value.teamName,
+          pointForm.value.medalType,
+          selectedEventId.value,
+        );
       }
     }
 
-    closeScoreModal();
-    await fetchScores();
+    closePointModal();
+    await fetchPoints();
   } catch (error) {
     console.error("Error saving result:", error);
   } finally {
@@ -736,73 +656,85 @@ const handleScoreSubmit = async () => {
   }
 };
 
-const editScore = (score) => {
-  editingScore.value = score;
-  scoreForm.value = {
-    teamName: score.team_name,
-    scoreValue: score.score_value,
+const editPoint = (point) => {
+  editingPoint.value = point;
+  pointForm.value = {
+    teamName: point.team_name,
+    medalType: point.medal_type,
+    eventName: point.event_id,
   };
-  showAddScoreModal.value = true;
+  showAddPointModal.value = true;
 };
 
-const deleteScore = (score) => {
-  deletingScore.value = score;
+const deletePoint = (point) => {
+  deletingPoint.value = point;
   showDeleteModal.value = true;
 };
 
-const confirmDeleteScore = async () => {
+const confirmDeletePoint = async () => {
   try {
     deleting.value = true;
-    await deleteScoreFromDb(deletingScore.value.id);
+    await deletePointFromDb(deletingPoint.value.id);
     showDeleteModal.value = false;
-    await fetchScores();
+    await fetchPoints();
   } catch (error) {
-    console.error("Error deleting score:", error);
+    console.error("Error deleting point:", error);
   } finally {
     deleting.value = false;
   }
 };
 
-const incrementScore = async (score) => {
+const incrementPoint = async (point) => {
   try {
-    await updateScoreInDb(score.id, score.score_value + 1, authStore.user.id);
-    await fetchScores();
+    await updatePointInDb(
+      point.id,
+      point.points_value + 1,
+      null,
+      authStore.user.id,
+    );
+    await fetchPoints();
   } catch (error) {
-    console.error("Error incrementing score:", error);
+    console.error("Error incrementing point:", error);
   }
 };
 
-const decrementScore = async (score) => {
+const decrementPoint = async (point) => {
   try {
-    const newScore = Math.max(0, score.score_value - 1);
-    await updateScoreInDb(score.id, newScore, authStore.user.id);
-    await fetchScores();
+    const newPoint = Math.max(0, point.points_value - 1);
+    await updatePointInDb(point.id, newPoint, null, authStore.user.id);
+    await fetchPoints();
   } catch (error) {
-    console.error("Error decrementing score:", error);
+    console.error("Error decrementing point:", error);
   }
 };
 
-const updateScore = async (score) => {
+const updatePoint = async (point) => {
   try {
-    await updateScoreInDb(score.id, score.score_value, authStore.user.id);
-    await fetchScores();
+    await updatePointInDb(
+      point.id,
+      point.points_value,
+      point.medal_type,
+      authStore.user.id,
+    );
+    await fetchPoints();
   } catch (error) {
-    console.error("Error updating score:", error);
+    console.error("Error updating point:", error);
   }
 };
 
-const closeScoreModal = () => {
-  showAddScoreModal.value = false;
-  editingScore.value = null;
-  scoreForm.value = {
+const closePointModal = () => {
+  showAddPointModal.value = false;
+  editingPoint.value = null;
+  pointForm.value = {
     teamName: "",
     medalType: "",
-    eventName: "",
+    location: "",
+    notes: "",
   };
 };
 
 const getTeamIdByName = (teamName) => {
-  const team = tournamentStore.participants.find((p) => p.name === teamName);
+  const team = tournamentStore.teams.find((t) => t.team_name === teamName);
   return team ? team.id : null;
 };
 
@@ -813,47 +745,6 @@ const getMedalPoints = (medalType) => {
     bronze: 10,
   };
   return points[medalType] || 0;
-};
-
-// Team management functions
-const handleTeamSubmit = async () => {
-  try {
-    submitting.value = true;
-
-    const teamData = {
-      name: teamForm.value.name,
-      avatar: teamForm.value.avatar || "/default-avatar.png",
-      color: teamForm.value.color,
-      points: 0,
-      rank: tournamentStore.participants.length + 1,
-      medals: { gold: 0, silver: 0, bronze: 0 },
-      recentForm: ["L", "L", "L", "L", "L"],
-    };
-
-    // Add team to tournament store
-    tournamentStore.participants.push(teamData);
-
-    // Re-sort participants by points and update ranks
-    tournamentStore.participants.sort((a, b) => b.points - a.points);
-    tournamentStore.participants.forEach((p, index) => {
-      p.rank = index + 1;
-    });
-
-    closeTeamModal();
-  } catch (error) {
-    console.error("Error adding team:", error);
-  } finally {
-    submitting.value = false;
-  }
-};
-
-const closeTeamModal = () => {
-  showAddTeamModal.value = false;
-  teamForm.value = {
-    name: "",
-    avatar: "",
-    color: "",
-  };
 };
 
 const formatDateTime = (dateString) => {
@@ -868,5 +759,6 @@ const formatDateTime = (dateString) => {
 // Lifecycle
 onMounted(() => {
   fetchEvents();
+  tournamentStore.fetchTeams(); // Fetch teams to populate dropdown
 });
 </script>

@@ -347,10 +347,10 @@
                     >
                   </div>
                   <div class="font-bold text-lg mb-2" style="color: white">
-                    {{ topThree[0]?.name || "Team" }}
+                    {{ topThree[0]?.team_name || "Team" }}
                   </div>
                   <div class="text-xl font-bold mb-3" style="color: white">
-                    {{ formatPoints(topThree[0]?.points || 0) }}
+                    {{ formatPoints(topThree[0]?.total_points || 0) }}
                   </div>
                   <div class="flex items-center justify-center space-x-2">
                     <span
@@ -361,7 +361,7 @@
                         border-color: white;
                         color: white;
                       "
-                      >🥇 {{ topThree[0]?.medals?.gold || 0 }}</span
+                      >🥇 {{ topThree[0]?.gold_medals || 0 }}</span
                     >
                     <span
                       class="inline-flex items-center px-2 py-1 rounded text-xs font-bold border"
@@ -371,7 +371,7 @@
                         border-color: white;
                         color: white;
                       "
-                      >🥈 {{ topThree[0]?.medals?.silver || 0 }}</span
+                      >🥈 {{ topThree[0]?.silver_medals || 0 }}</span
                     >
                     <span
                       class="inline-flex items-center px-2 py-1 rounded text-xs font-bold border"
@@ -381,7 +381,7 @@
                         border-color: white;
                         color: white;
                       "
-                      >🥉 {{ topThree[0]?.medals?.bronze || 0 }}</span
+                      >🥉 {{ topThree[0]?.bronze_medals || 0 }}</span
                     >
                   </div>
                 </div>
@@ -443,10 +443,10 @@
                     >
                   </div>
                   <div class="font-bold text-sm mb-1" style="color: white">
-                    {{ topThree[1]?.name || "Team" }}
+                    {{ topThree[1]?.team_name || "Team" }}
                   </div>
                   <div class="text-lg font-bold mb-2" style="color: white">
-                    {{ formatPoints(topThree[1]?.points || 0) }}
+                    {{ formatPoints(topThree[1]?.total_points || 0) }}
                   </div>
                   <div class="flex items-center justify-center space-x-1">
                     <span
@@ -457,7 +457,7 @@
                         border-color: white;
                         color: white;
                       "
-                      >🥇 {{ topThree[1]?.medals?.gold || 0 }}</span
+                      >🥇 {{ topThree[1]?.gold_medals || 0 }}</span
                     >
                     <span
                       class="inline-flex items-center px-1 py-0.5 rounded text-xs font-bold border"
@@ -467,7 +467,7 @@
                         border-color: white;
                         color: white;
                       "
-                      >🥈 {{ topThree[1]?.medals?.silver || 0 }}</span
+                      >🥈 {{ topThree[1]?.silver_medals || 0 }}</span
                     >
                     <span
                       class="inline-flex items-center px-1 py-0.5 rounded text-xs font-bold border"
@@ -477,7 +477,7 @@
                         border-color: white;
                         color: white;
                       "
-                      >🥉 {{ topThree[1]?.medals?.bronze || 0 }}</span
+                      >🥉 {{ topThree[1]?.bronze_medals || 0 }}</span
                     >
                   </div>
                 </div>
@@ -539,10 +539,10 @@
                     >
                   </div>
                   <div class="font-bold text-sm mb-1" style="color: white">
-                    {{ topThree[2]?.name || "Team" }}
+                    {{ topThree[2]?.team_name || "Team" }}
                   </div>
                   <div class="text-lg font-bold mb-2" style="color: white">
-                    {{ formatPoints(topThree[2]?.points || 0) }}
+                    {{ formatPoints(topThree[2]?.total_points || 0) }}
                   </div>
                   <div class="flex items-center justify-center space-x-1">
                     <span
@@ -553,7 +553,7 @@
                         border-color: white;
                         color: white;
                       "
-                      >🥇 {{ topThree[2]?.medals?.gold || 0 }}</span
+                      >🥇 {{ topThree[2]?.gold_medals || 0 }}</span
                     >
                     <span
                       class="inline-flex items-center px-1 py-0.5 rounded text-xs font-bold border"
@@ -563,7 +563,7 @@
                         border-color: white;
                         color: white;
                       "
-                      >🥈 {{ topThree[2]?.medals?.silver || 0 }}</span
+                      >🥈 {{ topThree[2]?.silver_medals || 0 }}</span
                     >
                     <span
                       class="inline-flex items-center px-1 py-0.5 rounded text-xs font-bold border"
@@ -573,7 +573,7 @@
                         border-color: white;
                         color: white;
                       "
-                      >🥉 {{ topThree[2]?.medals?.bronze || 0 }}</span
+                      >🥉 {{ topThree[2]?.bronze_medals || 0 }}</span
                     >
                   </div>
                 </div>
@@ -581,159 +581,9 @@
             </div>
           </div>
 
-          <!-- Full Leaderboard Table (Integrated) -->
+          <!-- Animated Leaderboard -->
           <div class="fade-in">
-            <!-- Table Header -->
-            <div class="mb-6 flex items-center justify-between">
-              <div>
-                <h3 class="text-xl font-bold" style="color: var(--color-light)">
-                  Full Leaderboard
-                </h3>
-                <p class="text-sm mt-1" style="color: var(--color-secondary)">
-                  {{ totalParticipants }} Participants
-                </p>
-              </div>
-            </div>
-
-            <!-- Table -->
-            <div class="table-modern">
-              <table class="w-full">
-                <thead class="table-header">
-                  <tr>
-                    <th
-                      class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider"
-                      style="color: var(--color-secondary)"
-                    >
-                      Rank
-                    </th>
-                    <th
-                      class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider"
-                      style="color: var(--color-secondary)"
-                    >
-                      Player/Team
-                    </th>
-                    <th
-                      class="px-6 py-4 text-center text-xs font-medium uppercase tracking-wider"
-                      style="color: var(--color-secondary)"
-                    >
-                      Medals (🥇🥈🥉)
-                    </th>
-                    <th
-                      class="px-6 py-4 text-center text-xs font-medium uppercase tracking-wider"
-                      style="color: var(--color-secondary)"
-                    >
-                      Points
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    v-for="(participant, index) in leaderboardData"
-                    :key="participant.id"
-                    class="table-row"
-                  >
-                    <!-- Rank -->
-                    <td class="table-cell">
-                      <div class="flex items-center">
-                        <span
-                          :class="[
-                            'font-bold text-lg',
-                            participant.rank <= 3 ? 'pixel-glow' : '',
-                          ]"
-                          :style="
-                            participant.rank <= 3
-                              ? 'color: var(--color-primary);'
-                              : 'color: var(--color-light);'
-                          "
-                        >
-                          #{{ participant.rank }}
-                        </span>
-                        <div v-if="participant.rank <= 3" class="ml-2">
-                          <span v-if="participant.rank === 1" class="text-xl"
-                            >🥇</span
-                          >
-                          <span
-                            v-else-if="participant.rank === 2"
-                            class="text-xl"
-                            >🥈</span
-                          >
-                          <span
-                            v-else-if="participant.rank === 3"
-                            class="text-xl"
-                            >🥉</span
-                          >
-                        </div>
-                      </div>
-                    </td>
-
-                    <!-- Player/Team -->
-                    <td class="table-cell">
-                      <div class="flex items-center">
-                        <div
-                          class="w-14 h-14 rounded-full overflow-hidden border-3 shadow-lg"
-                          :style="{
-                            background: participant?.color
-                              ? 'linear-gradient(135deg, ' +
-                                getTeamColor(participant.color) +
-                                ' 0%, ' +
-                                getTeamColor(participant.color) +
-                                'dd 100%)'
-                              : 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%)',
-                            borderColor: participant?.color
-                              ? getTeamColor(participant.color)
-                              : 'var(--color-primary)',
-                          }"
-                        >
-                          <img
-                            :src="participant?.avatar || '/default-avatar.png'"
-                            :alt="participant?.name || 'Team'"
-                            class="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div class="ml-4">
-                          <div
-                            class="text-sm font-medium"
-                            style="color: var(--color-light)"
-                          >
-                            {{ participant.name }}
-                          </div>
-                          <div
-                            class="text-xs"
-                            style="color: var(--color-secondary)"
-                          >
-                            ID: {{ participant.id }}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-
-                    <!-- Medals -->
-                    <td class="table-cell text-center">
-                      <div class="flex items-center justify-center space-x-1">
-                        <span class="text-yellow-500 font-bold"
-                          >🥇 {{ participant.medals?.gold || 0 }}</span
-                        >
-                        <span class="text-gray-400 font-bold"
-                          >🥈 {{ participant.medals?.silver || 0 }}</span
-                        >
-                        <span class="text-orange-600 font-bold"
-                          >🥉 {{ participant.medals?.bronze || 0 }}</span
-                        >
-                      </div>
-                    </td>
-
-                    <!-- Points -->
-                    <td class="table-cell text-center">
-                      <span
-                        class="text-lg font-bold"
-                        style="color: var(--color-light)"
-                        >{{ formatPoints(participant.points) }}</span
-                      >
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            <AnimatedLeaderboard />
           </div>
         </main>
       </div>
@@ -745,9 +595,13 @@
 import { defineStore } from "pinia";
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useTournamentStore } from "@/stores/useTournamentStore.js";
+import AnimatedLeaderboard from "@/components/AnimatedLeaderboard.vue";
 
 export default {
   name: "Dashboard",
+  components: {
+    AnimatedLeaderboard,
+  },
   setup() {
     const tournamentStore = useTournamentStore();
     const searchQuery = ref("");
@@ -774,19 +628,36 @@ export default {
     const sports = computed(() => tournamentStore.sports);
     const activeMatches = computed(() => tournamentStore.activeMatches);
     const allEvents = computed(() => tournamentStore.events);
-    const totalParticipants = computed(() => tournamentStore.totalParticipants);
+    const totalParticipants = computed(
+      () => (tournamentStore.teams || []).length,
+    );
     const activeSportsCount = computed(
       () => sports.value.filter((s) => s.active).length,
     );
 
     // Top Rankings data
     const topThree = computed(() => {
-      const participants = tournamentStore.participants || [];
-      return participants.slice(0, 3);
+      const teams = tournamentStore.teams || [];
+      return teams.slice(0, 3);
     });
 
     // Full Leaderboard data
-    const leaderboardData = computed(() => tournamentStore.fullLeaderboard);
+    const leaderboardData = computed(() => {
+      const teams = tournamentStore.teams || [];
+      return teams.map((team, index) => ({
+        ...team,
+        rank: index + 1,
+        name: team.team_name,
+        points: team.total_points || 0,
+        medals: {
+          gold: team.gold_medals || 0,
+          silver: team.silver_medals || 0,
+          bronze: team.bronze_medals || 0,
+        },
+        avatar: team.logo_url || "/default-avatar.png",
+        color: team.color || "blue",
+      }));
+    });
     const currentUser = computed(() => tournamentStore.currentUser);
 
     // Utility functions

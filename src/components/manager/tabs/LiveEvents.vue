@@ -248,122 +248,138 @@
     <!-- Create/Edit Event Modal -->
     <div
       v-if="showCreateModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style="backdrop-filter: blur(12px); background: rgba(255, 255, 255, 0.1)"
     >
-      <div class="card p-6 w-full max-w-md">
-        <h3 class="text-lg font-bold mb-4" style="color: var(--color-light)">
-          {{ editingEvent ? "Edit Event" : "Create Event" }}
-        </h3>
+      <div class="w-full max-w-md transform transition-all">
+        <div
+          class="bg-white rounded-2xl shadow-2xl border border-white/20 backdrop-blur-xl p-6"
+        >
+          <h3 class="text-xl font-bold mb-4 text-gray-900">
+            {{ editingEvent ? "Edit Event" : "Create Event" }}
+          </h3>
 
-        <form @submit.prevent="handleSubmit" class="space-y-4">
-          <div>
-            <label
-              class="block text-sm font-medium mb-2"
-              style="color: var(--color-light)"
-              >Event Name</label
-            >
-            <input
-              v-model="form.eventName"
-              type="text"
-              required
-              class="input-modern w-full"
-              placeholder="e.g., Basketball Finals"
-            />
-          </div>
+          <form @submit.prevent="handleSubmit" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-2 text-gray-700">
+                Event Name
+              </label>
+              <input
+                v-model="form.eventName"
+                type="text"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="e.g., Basketball Finals"
+              />
+            </div>
 
-          <div>
-            <label
-              class="block text-sm font-medium mb-2"
-              style="color: var(--color-light)"
-              >Category</label
-            >
-            <select
-              v-model="form.category"
-              class="input-modern w-full"
-              required
-            >
-              <option value="">Select category</option>
-              <option value="sports">Sports</option>
-              <option value="esports">Esports</option>
-            </select>
-          </div>
+            <div>
+              <label class="block text-sm font-medium mb-2 text-gray-700">
+                Category
+              </label>
+              <select
+                v-model="form.category"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              >
+                <option value="">Select category</option>
+                <option value="sports">Sports</option>
+                <option value="esports">Esports</option>
+              </select>
+            </div>
 
-          <div>
-            <label
-              class="block text-sm font-medium mb-2"
-              style="color: var(--color-light)"
-              >Event Date</label
-            >
-            <input
-              v-model="form.eventDate"
-              type="date"
-              required
-              class="input-modern w-full"
-            />
-          </div>
+            <div>
+              <label class="block text-sm font-medium mb-2 text-gray-700">
+                Event Date
+              </label>
+              <input
+                v-model="form.eventDate"
+                type="date"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
 
-          <div>
-            <label
-              class="block text-sm font-medium mb-2"
-              style="color: var(--color-light)"
-              >Start Time</label
-            >
-            <input
-              v-model="form.startTime"
-              type="time"
-              required
-              class="input-modern w-full"
-            />
-          </div>
+            <div>
+              <label class="block text-sm font-medium mb-2 text-gray-700">
+                Start Time
+              </label>
+              <input
+                v-model="form.startTime"
+                type="time"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
 
-          <div class="flex items-center">
-            <input
-              v-model="form.isLive"
-              type="checkbox"
-              id="isLive"
-              class="mr-2"
-            />
-            <label
-              for="isLive"
-              class="text-sm"
-              style="color: var(--color-light)"
-            >
-              Start as live event
-            </label>
-          </div>
+            <!-- Location Field -->
+            <div>
+              <label class="block text-sm font-medium mb-2 text-gray-700">
+                Location
+              </label>
+              <input
+                v-model="form.location"
+                type="text"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="e.g., Gymnasium, Sports Complex, Room 301"
+              />
+            </div>
 
-          <div class="flex justify-end space-x-3 pt-4">
-            <button type="button" @click="closeModal" class="btn-secondary">
-              Cancel
-            </button>
-            <button type="submit" :disabled="submitting" class="btn-primary">
-              <span v-if="submitting" class="flex items-center">
-                <svg
-                  class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
-                  ></circle>
-                  <path
-                    class="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                {{ editingEvent ? "Updating..." : "Creating..." }}
-              </span>
-              <span v-else>{{ editingEvent ? "Update" : "Create" }}</span>
-            </button>
-          </div>
-        </form>
+            <div class="flex items-center">
+              <input
+                v-model="form.isLive"
+                type="checkbox"
+                id="isLive"
+                class="mr-2"
+              />
+              <label for="isLive" class="text-sm text-gray-700">
+                Start as live event
+              </label>
+            </div>
+
+            <div
+              class="flex justify-end space-x-3 pt-4 border-t border-gray-100"
+            >
+              <button
+                type="button"
+                @click="closeModal"
+                class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                :disabled="submitting"
+                class="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span v-if="submitting" class="flex items-center">
+                  <svg
+                    class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  {{ editingEvent ? "Updating..." : "Creating..." }}
+                </span>
+                <span v-else>{{ editingEvent ? "Update" : "Create" }}</span>
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -464,6 +480,7 @@ const form = ref({
   category: "",
   eventDate: "",
   startTime: "",
+  location: "",
   isLive: false,
 });
 
@@ -485,6 +502,7 @@ const handleSubmit = async () => {
       category: form.value.category,
       event_date: form.value.eventDate,
       start_time: form.value.startTime,
+      location: form.value.location,
       is_live: form.value.isLive,
     };
 
@@ -510,6 +528,7 @@ const editEvent = (event) => {
     category: event.category,
     eventDate: event.event_date,
     startTime: event.start_time,
+    location: event.location || "",
     isLive: event.is_live,
   };
   showCreateModal.value = true;
@@ -550,6 +569,7 @@ const closeModal = () => {
     category: "",
     eventDate: "",
     startTime: "",
+    location: "",
     isLive: false,
   };
 };

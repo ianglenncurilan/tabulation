@@ -23,6 +23,21 @@ export const useTournamentStore = defineStore("tournament", () => {
   const points = ref([]);
   const loading = ref(false);
 
+  // Calculate points from medals
+  const calculatePointsFromMedals = (team) => {
+    const goldPoints = (team.gold_medals || 0) * 10;
+    const silverPoints = (team.silver_medals || 0) * 5;
+    const bronzePoints = (team.bronze_medals || 0) * 3;
+    return goldPoints + silverPoints + bronzePoints;
+  };
+
+  // Update team points based on medals
+  const updateTeamPointsFromMedals = () => {
+    teams.value.forEach((team) => {
+      team.total_points = calculatePointsFromMedals(team);
+    });
+  };
+
   // Computed properties
   const topThree = computed(() => teams.value.slice(0, 3));
   const fullLeaderboard = computed(() => teams.value.slice(0, 10)); // Show first 10 for demo
@@ -193,6 +208,9 @@ export const useTournamentStore = defineStore("tournament", () => {
         team.medals.bronze = team.bronze_medals || 0;
       }
 
+      // Always calculate points from medals to ensure accuracy
+      team.total_points = calculatePointsFromMedals(team);
+
       // Set points from total_points
       team.points = team.total_points || 0;
 
@@ -277,6 +295,8 @@ export const useTournamentStore = defineStore("tournament", () => {
     fetchPoints,
     fetchTeams,
     initializeData,
+    calculatePointsFromMedals,
+    updateTeamPointsFromMedals,
     setupRealtime,
     addTeam,
   };

@@ -11,6 +11,41 @@
         </p>
       </div>
       <div class="flex items-center space-x-4 mb-6">
+        <button
+          @click="toggleDashboardVisibility"
+          class="btn-secondary"
+          :class="{ 'btn-primary': !uiStore.showDashboardInfo }"
+        >
+          <svg
+            class="w-4 h-4 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              v-if="!uiStore.showDashboardInfo"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+            <path
+              v-if="!uiStore.showDashboardInfo"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+            />
+            <path
+              v-if="uiStore.showDashboardInfo"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+            />
+          </svg>
+          {{ uiStore.showDashboardInfo ? "Hide" : "Show" }} Dashboard Info
+        </button>
         <select
           v-model="selectedEventId"
           @change="fetchPoints"
@@ -133,12 +168,6 @@
                 class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider"
                 style="color: var(--color-secondary)"
               >
-                Rank
-              </th>
-              <th
-                class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider"
-                style="color: var(--color-secondary)"
-              >
                 Team Name
               </th>
               <th
@@ -167,37 +196,20 @@
               :key="point.id"
               class="table-row"
             >
-              <!-- Rank -->
-              <td class="table-cell">
-                <div class="flex items-center">
-                  <span
-                    :class="[
-                      'font-bold text-lg',
-                      index < 3 ? 'pixel-glow' : '',
-                    ]"
-                    :style="
-                      index < 3
-                        ? 'color: var(--color-primary);'
-                        : 'color: var(--color-light);'
-                    "
-                  >
-                    #{{ index + 1 }}
-                  </span>
-                  <div v-if="index < 3" class="ml-2">
-                    <span v-if="index === 0" class="text-xl">🥇</span>
-                    <span v-else-if="index === 1" class="text-xl">🥈</span>
-                    <span v-else-if="index === 2" class="text-xl">🥉</span>
-                  </div>
-                </div>
-              </td>
-
               <!-- Team Name -->
               <td class="table-cell">
-                <span
-                  class="text-sm font-medium"
-                  style="color: var(--color-light)"
-                  >{{ point.team_name }}</span
-                >
+                <div class="flex items-center">
+                  <div class="flex items-center">
+                    <span v-if="index < 3" class="mr-2 text-xl">
+                      <span v-if="index === 0"></span>
+                      <span v-else-if="index === 1"></span>
+                      <span v-else-if="index === 2"></span>
+                    </span>
+                    <span class="font-medium" style="color: var(--color-light)">
+                      {{ point.team_name }}
+                    </span>
+                  </div>
+                </div>
               </td>
 
               <!-- POINTS -->
@@ -248,12 +260,6 @@
               <!-- Actions -->
               <td class="table-cell text-center">
                 <div class="flex justify-center space-x-2">
-                  <button
-                    @click="editPoint(point)"
-                    class="btn-secondary text-sm"
-                  >
-                    Edit
-                  </button>
                   <button
                     @click="deletePoint(point)"
                     class="btn-danger text-sm"
@@ -327,7 +333,7 @@
         ></path>
       </svg>
       <h3 class="mt-2 text-sm font-medium" style="color: var(--color-light)">
-        Select an Event
+        Add the Result
       </h3>
       <p class="mt-1 text-sm" style="color: var(--color-secondary)">
         Choose an event to manage its scores.
@@ -342,7 +348,7 @@
     >
       <div class="w-full max-w-md transform transition-all">
         <div
-          class="bg-white rounded-2xl shadow-2xl border border-white/20 backdrop-blur-xl"
+          class="bg-gray-900 rounded-2xl shadow-2xl border border-white/20 backdrop-blur-xl"
         >
           <!-- Modal Header -->
           <div class="px-6 py-4 border-b border-gray-100">
@@ -360,6 +366,12 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
                 Team
+                <span
+                  v-if="getTeamMedalStatus()"
+                  class="ml-2 text-xs text-orange-500"
+                >
+                  🏆 Team already awarded in this event
+                </span>
               </label>
               <select
                 v-model="pointForm.teamName"
@@ -367,13 +379,19 @@
               >
                 <option value="">Select team</option>
                 <option
-                  v-for="team in tournamentStore.teams"
+                  v-for="team in getAvailableTeams()"
                   :key="team.id"
                   :value="team.team_name"
                 >
                   {{ team.team_name }}
                 </option>
               </select>
+              <div
+                v-if="getAvailableTeams().length === 0"
+                class="mt-1 text-xs text-red-500"
+              >
+                All teams have already been awarded medals in this event.
+              </div>
             </div>
 
             <!-- Medal Type -->
@@ -386,36 +404,20 @@
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">Select medal</option>
-                <option value="gold">🥇 Gold</option>
-                <option value="silver">🥈 Silver</option>
-                <option value="bronze">🥉 Bronze</option>
+                <option
+                  v-for="medal in getAvailableMedals()"
+                  :key="medal.type"
+                  :value="medal.type"
+                >
+                  {{ medal.label }}
+                </option>
               </select>
-            </div>
-
-            <!-- Location Field -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Location
-              </label>
-              <input
-                v-model="pointForm.location"
-                type="text"
-                placeholder="Enter event location (e.g., Gymnasium, Field A)"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-
-            <!-- Notes (Optional) -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Notes (Optional)
-              </label>
-              <textarea
-                v-model="pointForm.notes"
-                rows="3"
-                placeholder="Additional notes about this result..."
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              ></textarea>
+              <div
+                v-if="getAvailableMedals().length === 0"
+                class="mt-1 text-xs text-red-500"
+              >
+                All medals have already been awarded for this event.
+              </div>
             </div>
           </div>
 
@@ -449,7 +451,7 @@
     >
       <div class="w-full max-w-sm transform transition-all">
         <div
-          class="bg-white rounded-2xl shadow-2xl border border-white/20 backdrop-blur-xl p-6"
+          class="bg-gray-900 rounded-2xl shadow-2xl border border-white/20 backdrop-blur-xl p-6"
         >
           <div class="text-center">
             <svg
@@ -520,6 +522,7 @@
 import { ref, computed, onMounted } from "vue";
 import { useAuthStore } from "@/stores/useAuthStore.js";
 import { useTournamentStore } from "@/stores/useTournamentStore.js";
+import { useUIStore } from "@/stores/useUIStore.js";
 import {
   getEvents,
   getPoints,
@@ -530,6 +533,7 @@ import {
 
 const authStore = useAuthStore();
 const tournamentStore = useTournamentStore();
+const uiStore = useUIStore();
 
 // State
 const loading = ref(false);
@@ -546,8 +550,6 @@ const deletingPoint = ref(null);
 const pointForm = ref({
   teamName: "",
   medalType: "",
-  location: "",
-  notes: "",
 });
 
 // Computed
@@ -592,6 +594,16 @@ const handlePointSubmit = async () => {
       throw new Error("No event selected");
     }
 
+    // Check if the selected medal is already awarded
+    if (
+      pointForm.value.medalType &&
+      getMedalAvailability(pointForm.value.medalType) === "taken"
+    ) {
+      throw new Error(
+        `This ${pointForm.value.medalType} medal has already been awarded for this event. Please select a different medal.`,
+      );
+    }
+
     // Get team ID from team name
     const team = tournamentStore.teams.find(
       (t) => t.team_name === pointForm.value.teamName,
@@ -614,10 +626,8 @@ const handlePointSubmit = async () => {
       event_id: selectedEventId.value, // Use selected event ID
       team_id: team.id, // Add team ID reference
       team_name: pointForm.value.teamName,
-      points_value: 0, // Points will be calculated by trigger
+      points_value: getMedalPoints(pointForm.value.medalType) || 0, // Use correct medal points
       medal_type: pointForm.value.medalType || null,
-      location: pointForm.value.location || null,
-      notes: pointForm.value.notes || null,
     };
 
     console.log("Point data to create/update:", pointData);
@@ -632,19 +642,13 @@ const handlePointSubmit = async () => {
         authStore.user.id,
       );
     } else {
-      // Create new point
+      // Create new point (only once)
       console.log("Creating new point");
       await createPoint(pointData);
 
-      // Update tournament store with medal
-      const teamId = getTeamIdByName(pointForm.value.teamName);
-      if (teamId && pointForm.value.medalType) {
-        await tournamentStore.addMedal(
-          pointForm.value.teamName,
-          pointForm.value.medalType,
-          selectedEventId.value,
-        );
-      }
+      // Refresh data to update team stats
+      await tournamentStore.fetchTeams();
+      await tournamentStore.fetchPoints();
     }
 
     closePointModal();
@@ -728,8 +732,6 @@ const closePointModal = () => {
   pointForm.value = {
     teamName: "",
     medalType: "",
-    location: "",
-    notes: "",
   };
 };
 
@@ -739,21 +741,105 @@ const getTeamIdByName = (teamName) => {
 };
 
 const getMedalPoints = (medalType) => {
-  const points = {
-    gold: 30,
-    silver: 20,
-    bronze: 10,
-  };
-  return points[medalType] || 0;
+  switch (medalType) {
+    case "gold":
+      return 10;
+    case "silver":
+      return 5;
+    case "bronze":
+      return 3;
+    default:
+      return 0;
+  }
 };
 
 const formatDateTime = (dateString) => {
   return new Date(dateString).toLocaleString("en-US", {
     month: "short",
     day: "numeric",
+    year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
   });
+};
+
+const toggleDashboardVisibility = () => {
+  uiStore.toggleDashboardInfo();
+};
+
+// Check if a medal type is already awarded for the selected event
+const getMedalAvailability = (medalType) => {
+  if (!selectedEventId.value || !medalType) return "available";
+
+  const existingMedals = points.value.filter(
+    (point) =>
+      point.event_id === selectedEventId.value &&
+      point.medal_type === medalType,
+  );
+
+  return existingMedals.length > 0 ? "taken" : "available";
+};
+
+// Get existing medals for the selected event
+const getEventMedals = () => {
+  if (!selectedEventId.value) return { gold: [], silver: [], bronze: [] };
+
+  const eventPoints = points.value.filter(
+    (point) => point.event_id === selectedEventId.value,
+  );
+
+  return {
+    gold: eventPoints.filter((p) => p.medal_type === "gold"),
+    silver: eventPoints.filter((p) => p.medal_type === "silver"),
+    bronze: eventPoints.filter((p) => p.medal_type === "bronze"),
+  };
+};
+
+// Get teams that haven't received medals in this event yet
+const getAvailableTeams = () => {
+  if (!selectedEventId.value) return tournamentStore.teams;
+
+  const awardedTeams = points.value
+    .filter((point) => point.event_id === selectedEventId.value)
+    .map((point) => point.team_name);
+
+  return tournamentStore.teams.filter(
+    (team) => !awardedTeams.includes(team.team_name),
+  );
+};
+
+// Get medals that haven't been awarded in this event yet
+const getAvailableMedals = () => {
+  if (!selectedEventId.value) {
+    return [
+      { type: "gold", label: "🥇 Gold" },
+      { type: "silver", label: "🥈 Silver" },
+      { type: "bronze", label: "🥉 Bronze" },
+    ];
+  }
+
+  const allMedals = [
+    { type: "gold", label: "🥇 Gold" },
+    { type: "silver", label: "🥈 Silver" },
+    { type: "bronze", label: "🥉 Bronze" },
+  ];
+
+  const awardedMedalTypes = points.value
+    .filter((point) => point.event_id === selectedEventId.value)
+    .map((point) => point.medal_type);
+
+  return allMedals.filter((medal) => !awardedMedalTypes.includes(medal.type));
+};
+
+// Check if current team has already been awarded in this event
+const getTeamMedalStatus = () => {
+  if (!selectedEventId.value || !pointForm.value.teamName) return false;
+
+  return points.value.some(
+    (point) =>
+      point.event_id === selectedEventId.value &&
+      point.team_name === pointForm.value.teamName,
+  );
 };
 
 // Lifecycle

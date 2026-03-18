@@ -11,13 +11,43 @@
         </p>
       </div>
       <div class="flex items-center space-x-4 mb-6">
+        <select
+          v-model="selectedEventId"
+          @change="fetchPoints"
+          class="input-modern w-64"
+        >
+          <option value="">Select Event</option>
+          <option v-for="event in events" :key="event.id" :value="event.id">
+            {{ event.event_name }} ({{ event.category }})
+          </option>
+        </select>
         <button
-          @click="toggleDashboardVisibility"
-          class="btn-secondary"
-          :class="{ 'btn-primary': !uiStore.showDashboardInfo }"
+          v-if="selectedEventId"
+          @click="showAddPointModal = true"
+          class="btn-primary h-10 px-4"
         >
           <svg
             class="w-4 h-4 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+            ></path>
+          </svg>
+          Add
+        </button>
+        <button
+          @click="toggleDashboardVisibility"
+          class="btn-secondary h-10 w-24"
+          :class="{ 'btn-primary': !uiStore.showDashboardInfo }"
+        >
+          <svg
+            class="w-4 h-4 mr-1"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -44,37 +74,9 @@
               d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
             />
           </svg>
-          {{ uiStore.showDashboardInfo ? "Hide" : "Show" }} Dashboard Info
-        </button>
-        <select
-          v-model="selectedEventId"
-          @change="fetchPoints"
-          class="input-modern w-64"
-        >
-          <option value="">Select Event</option>
-          <option v-for="event in events" :key="event.id" :value="event.id">
-            {{ event.event_name }} ({{ event.category }})
-          </option>
-        </select>
-        <button
-          v-if="selectedEventId"
-          @click="showAddPointModal = true"
-          class="btn-primary"
-        >
-          <svg
-            class="w-4 h-4 mr-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-            ></path>
-          </svg>
-          Add Result
+          <span class="text-xs">{{
+            uiStore.showDashboardInfo ? "Hide" : "Show"
+          }}</span>
         </button>
       </div>
     </div>
@@ -529,6 +531,7 @@ import {
   createPoint,
   updatePoint as updatePointInDb,
   deletePoint as deletePointFromDb,
+  subscribeToPoints,
 } from "@/utils/supabase.js";
 
 const authStore = useAuthStore();
@@ -583,6 +586,11 @@ const fetchPoints = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const fetchPointsAndTeams = async () => {
+  await fetchPoints();
+  await tournamentStore.fetchTeams(); // Refresh team data for updated rankings
 };
 
 const handlePointSubmit = async () => {
@@ -647,8 +655,7 @@ const handlePointSubmit = async () => {
       await createPoint(pointData);
 
       // Refresh data to update team stats
-      await tournamentStore.fetchTeams();
-      await tournamentStore.fetchPoints();
+      await fetchPointsAndTeams();
     }
 
     closePointModal();
@@ -680,7 +687,7 @@ const confirmDeletePoint = async () => {
     deleting.value = true;
     await deletePointFromDb(deletingPoint.value.id);
     showDeleteModal.value = false;
-    await fetchPoints();
+    await fetchPointsAndTeams();
   } catch (error) {
     console.error("Error deleting point:", error);
   } finally {
@@ -843,8 +850,27 @@ const getTeamMedalStatus = () => {
 };
 
 // Lifecycle
-onMounted(() => {
-  fetchEvents();
+onMounted(async () => {
+  await fetchEvents();
   tournamentStore.fetchTeams(); // Fetch teams to populate dropdown
+
+  // Set up real-time subscription for points
+  const unsubscribe = subscribeToPoints((payload) => {
+    console.log("Real-time points update:", payload);
+
+    // Refresh data when points change
+    if (
+      payload.eventType === "INSERT" ||
+      payload.eventType === "UPDATE" ||
+      payload.eventType === "DELETE"
+    ) {
+      fetchPointsAndTeams();
+    }
+  });
+
+  // Cleanup subscription when component unmounts
+  return () => {
+    if (unsubscribe) unsubscribe();
+  };
 });
 </script>

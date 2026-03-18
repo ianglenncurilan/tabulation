@@ -1,9 +1,6 @@
 <template>
   <div class="min-h-screen" style="background: var(--color-background)">
-    <!-- DAUG Logo Header -->
-    <div v-show="uiStore.showDashboardInfo" class="logo-header">
-      <img src="/LOGO wreck.png" alt="DAUG 2026 Logo" class="daug-logo" />
-    </div>
+   
 
     <!-- Main Content -->
     <div class="main-content">
